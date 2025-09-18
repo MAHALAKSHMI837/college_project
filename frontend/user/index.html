@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="user/user.css">
+  <title>Continuous 2FA Dashboard</title>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+    <div class="controls">
+      <input id="search" class="search" placeholder="Search events…"/>
+      <button id="btnStart" class="btn">Start Stream</button>
+      <button id="btnStop" class="btn ghost">Stop</button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Navigation</h3>
+      <div class="small">Dashboard · Streams · Decisions · Settings</div>
+    </div>
+    <div class="section">
+      <h3>Sampling</h3>
+      <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
+      <div class="small">Audio: <span id="cfgAudioInt">300s</span></div>
+      <div class="small">Watch: <span id="cfgWatchInt">30s</span></div>
+    </div>
+    <div class="section">
+      <h3>Thresholds</h3>
+      <div class="small">Min Trust: <span id="cfgTrust">0.65</span></div>
+      <div class="small">Watch Proximity (m): <span id="cfgProx">3.0</span></div>
+    </div>
+    <div class="section">
+      <h3>Session</h3>
+      <div class="small">User: <b id="user">MAHA-USER</b></div>
+      <div class="small">Device: <b id="device">EEC‑CSE‑LAP‑29</b></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="grid cols-3">
+      <div class="card">
+        <h3>Trust Score</h3>
+        <div class="kpi">
+          <span class="dot" style="background:#24d27b;"></span>
+          <div class="big" id="trustScore">0.00</div>
+        </div>
+        <div class="small">Rolling average of last 5 decisions</div>
+        <canvas id="trustChart"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Wi‑Fi RSSI (Top 5 APs)</h3>
+        <div class="small">Lower is weaker. Stable fingerprints → higher confidence.</div>
+        <canvas id="wifiChart"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Audio MFCC Entropy</h3>
+        <div class="small">Ambient drift detection.</div>
+        <canvas id="audioChart"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Decisions</h3>
+      <table>
+        <thead><tr><th>Time</th><th>Trust</th><th>Result</th><th>Reason</th></tr></thead>
+        <tbody id="decisionsBody"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Live Stream</h3>
+      <div class="small">Status: <span id="status" class="status safe">stopped</span></div>
+      <hr/>
+      <div class="grid cols-3">
+        <div>
+          <div class="small">Simulated Watch Proximity (m)</div>
+          <canvas id="watchChart"></canvas>
+        </div>
+        <div>
+          <div class="small">Combined Feature Drift</div>
+          <canvas id="driftChart"></canvas>
+        </div>
+        <div>
+          <div class="small">Decision Histogram</div>
+          <canvas id="histChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small">
+      © Continuous 2FA Frontend • Static demo UI for research & presentation.
+    </footer>
+  </main>
+</div>
+<script src="user/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="admin/admin.css">
+  <title>Admin Dashboard</title>
+</head>
+<body>
+<h2>Admin Dashboard</h2>
+
+<h3>Users</h3>
+<table border="1">
+  <thead><tr><th>ID</th><th>Username</th><th>Device</th></tr></thead>
+  <tbody id="usersBody"></tbody>
+</table>
+
+<h3>Decisions</h3>
+<table border="1">
+  <thead><tr><th>User ID</th><th>Decision</th><th>Trust</th><th>Time</th></tr></thead>
+  <tbody id="decisionsBody"></tbody>
+</table>
+
+<h3>Trust Trend</h3>
+<canvas id="trustTrend" width="400" height="150"></canvas>
+
+<h3>Decision Breakdown</h3>
+<canvas id="decisionPie" width="300" height="300"></canvas>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/admin/admin.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,1 @@
+{"items": [{"timestamp": "2025-08-22T08:30:00Z", "trust": 0.91, "result": "safe", "note": "Baseline stable"}, {"timestamp": "2025-08-22T08:38:00Z", "trust": 0.78, "result": "safe", "note": "Cafe noise spike"}, {"timestamp": "2025-08-22T08:45:00Z", "trust": 0.42, "result": "anomalous", "note": "Watch proximity lost"}]}

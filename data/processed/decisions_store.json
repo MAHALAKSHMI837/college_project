@@ -1,0 +1,6 @@
+{
+  "items": [
+    { "timestamp": "2025-09-17T10:00:00", "trust": 0.82, "result": "safe", "note": "WiFi stable" },
+    { "timestamp": "2025-09-17T10:05:00", "trust": 0.55, "result": "anomalous", "note": "Watch too far" }
+  ]
+}
