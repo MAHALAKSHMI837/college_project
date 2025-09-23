@@ -6,6 +6,7 @@ MODEL_FEATURES = [
     "watch_proximity"
 ]
 
+# Build feature vector from input features dictionary
 def build_feature_vector(features: dict) -> np.ndarray:
     rssi = features.get("wifi_rssi", [-60,-62,-65,-70,-75])[:5]
     if len(rssi) < 5:

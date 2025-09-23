@@ -2,6 +2,7 @@ import sounddevice as sd
 import numpy as np
 import librosa
 
+# Record audio and compute MFCC entropy
 def get_audio_mfcc_entropy(duration=3, fs=16000):
     try:
         audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='float32')

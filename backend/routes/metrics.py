@@ -7,11 +7,11 @@ from backend.utils.audio_analyzer import get_audio_mfcc_entropy
 from backend.utils.watch_reader import get_watch_proximity
 from backend.routes.decisions import _read_store, _write_store, _ensure_store
 
-
 from .decisions import _read_store, _write_store, _ensure_store
 
 metrics_bp = Blueprint("metrics", __name__)
 
+# Simple heuristic model for trust score
 def heuristic_trust(features):
     rssi_avg = np.mean(features['wifi_rssi'])
     entropy = features['audio_entropy']
@@ -20,6 +20,7 @@ def heuristic_trust(features):
     if prox > 3.0: trust -= 0.3
     return max(0.0, min(1.0, trust))
 
+# Get current metrics and make a decision
 @metrics_bp.route("/", methods=["GET"])
 def get_metrics():
     wifi = {"rssi": get_wifi_rssi()}

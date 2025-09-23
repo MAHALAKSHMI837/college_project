@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from .preprocess import MODEL_FEATURES
 
+# Generate synthetic training data
 def synth(n=1000):
     X, y = [], []
     rng = np.random.default_rng(42)
@@ -19,6 +20,7 @@ def synth(n=1000):
         X.append(list(rssi)+[entropy,prox]); y.append(0)
     return np.array(X), np.array(y)
 
+# Train and save the model
 def main():
     X, y = synth(1200)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.2, random_state=1337, stratify=y)

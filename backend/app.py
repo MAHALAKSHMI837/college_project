@@ -19,18 +19,22 @@ app.register_blueprint(auth_bp, url_prefix="/api/auth")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+# Serve main frontend
 @app.route("/user")
 def serve_user():
     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
 
+# Serve admin frontend
 @app.route("/admin")
 def serve_admin():
     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
 
+# Serve static files
 @app.route("/user/<path:filename>")
 def serve_user_static(filename):
     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
 
+# Serve static files
 @app.route("/admin/<path:filename>")
 def serve_admin_static(filename):
     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)

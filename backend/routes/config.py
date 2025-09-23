@@ -10,6 +10,7 @@ CONFIG = {
     "watchProxMaxMeters": 3.0
 }
 
+# Get current configuration
 @config_bp.route("/", methods=["GET"])
 def get_config():
     return jsonify(CONFIG)

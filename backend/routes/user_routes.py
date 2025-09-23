@@ -4,6 +4,7 @@ from backend.models.user_model import create_user
 # Blueprint for user routes
 user_bp = Blueprint("user", __name__)
 
+# Register a new user
 @user_bp.route("/register", methods=["POST"])
 def register_user():
     try:
@@ -23,6 +24,7 @@ def register_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+# Get decisions for a specific user
 @user_bp.route("/decisions/<int:user_id>", methods=["GET"])
 def get_user_decisions(user_id):
     try:

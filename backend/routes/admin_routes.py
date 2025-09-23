@@ -100,45 +100,80 @@
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
 
+# @admin_bp.route("/user", methods=["GET"])
+# def get_users():
+#     conn = get_db()
+#     if not conn:
+#         return jsonify({"error": "DB connection failed"}), 500
+#     try:
+#         cur = conn.cursor(cursor_factory=RealDictCursor)
+#         cur.execute("SELECT * FROM users ORDER BY created_at DESC;")
+#         rows = cur.fetchall()
+#         return jsonify(rows)
+#     finally:
+#         conn.close()
+
+# @admin_bp.route("/decisions", methods=["GET"])
+# def get_decisions():
+#     conn = get_db()
+#     if not conn:
+#         return jsonify({"error": "DB connection failed"}), 500
+#     try:
+#         cur = conn.cursor(cursor_factory=RealDictCursor)
+#         cur.execute("""
+#             SELECT d.id,
+#                    u.username,
+#                    d.trust_score,       -- correct column name
+#                    d.result,
+#                    d.note,
+#                    d.created_at         -- correct column name
+#             FROM decisions d
+#             JOIN users u ON d.user_id = u.id
+#             ORDER BY d.created_at DESC;
+#         """)
+#         rows = cur.fetchall()
+#         return jsonify(rows)
+#     finally:
+#         conn.close()
+
 from flask import Blueprint, jsonify, request
 from backend.utils.db import get_db
-from psycopg2.extras import RealDictCursor 
+from backend.models.decision_model import get_all_decisions, get_decision_stats
+from psycopg2.extras import RealDictCursor
 
 admin_bp = Blueprint("admin", __name__)
 
-@admin_bp.route("/user", methods=["GET"])
+# List all users
+@admin_bp.route("/users", methods=["GET"])
 def get_users():
+    """Get all users"""
     conn = get_db()
-    if not conn:
-        return jsonify({"error": "DB connection failed"}), 500
+    if not conn: return jsonify([])
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("SELECT * FROM users ORDER BY created_at DESC;")
+        cur.execute("SELECT * FROM users ORDER BY created_at DESC")
         rows = cur.fetchall()
         return jsonify(rows)
+    except Exception as e:
+        print(f"❌ Error retrieving users: {e}")
+        return jsonify([])
     finally:
+        cur.close()
         conn.close()
 
+# List all decisions
 @admin_bp.route("/decisions", methods=["GET"])
 def get_decisions():
-    conn = get_db()
-    if not conn:
-        return jsonify({"error": "DB connection failed"}), 500
-    try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("""
-            SELECT d.id,
-                   u.username,
-                   d.trust_score,       -- correct column name
-                   d.result,
-                   d.note,
-                   d.created_at         -- correct column name
-            FROM decisions d
-            JOIN users u ON d.user_id = u.id
-            ORDER BY d.created_at DESC;
-        """)
-        rows = cur.fetchall()
-        return jsonify(rows)
-    finally:
-        conn.close()
+    """Get all decisions with user info"""
+    limit = request.args.get('limit', 50, type=int)
+    decisions = get_all_decisions(limit)
+    return jsonify(decisions)
+
+# Get decision statistics
+@admin_bp.route("/stats", methods=["GET"])
+def get_stats():
+    """Get overall decision statistics"""
+    stats = get_decision_stats()
+    return jsonify(stats)
 

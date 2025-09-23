@@ -1,4 +1,6 @@
 import random
+
+# Simulate watch proximity data
 def get_watch_proximity():
     prox = abs(random.gauss(1.2,0.6))
     if random.random() < 0.2:

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -27,10 +27,109 @@
 <h3>Decision Breakdown</h3>
 <canvas id="decisionPie" width="300" height="300"></canvas>
 
-<!-- Chart.js -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/admin/admin.js"></script>
 
 </body>
 </html>
+ -->
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin Dashboard - Continuous 2FA</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h2>Admin Dashboard - Continuous 2FA</h2>
+      <div>
+        <button class="refresh-btn" onclick="loadAllData()">Refresh Data</button>
+      </div>
+    </div>
+
+    <div class="auto-refresh">
+      <input type="checkbox" id="autoRefresh" checked>
+      <label for="autoRefresh">Auto-refresh every 10 seconds</label>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value" id="totalUsers">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Decisions</div>
+        <div class="stat-value" id="totalDecisions">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Trust Score</div>
+        <div class="stat-value" id="avgTrust">0.00</div>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>Users</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Device</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="4">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-card">
+        <h3>Trust Trend</h3>
+        <div class="chart-container">
+          <canvas id="trustTrend"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>Recent Decisions</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Trust</th>
+              <th>Decision</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="decisionsBody">
+            <tr><td colspan="4">Loading decisions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-card">
+        <h3>Decision Breakdown</h3>
+        <div class="chart-container">
+          <canvas id="decisionPie"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="last-updated" id="lastUpdated">
+      Last updated: Never
+    </div>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

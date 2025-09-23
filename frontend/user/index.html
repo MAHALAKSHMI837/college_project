@@ -1,10 +1,12 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  
   <link rel="stylesheet" href="user/user.css">
   <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container">
@@ -100,4 +102,541 @@
 </div>
 <script src="user/app.js"></script>
 </body>
-</html>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="user/user.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+    <div class="controls">
+      <input id="search" class="search" placeholder="Search events…"/>
+      <button id="btnStart" class="btn">Start Stream</button>
+      <button id="btnStop" class="btn ghost">Stop</button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Navigation</h3>
+      <div class="small">Dashboard · Streams · Decisions · Settings</div>
+    </div>
+    <div class="section">
+      <h3>Sampling</h3>
+      <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
+      <div class="small">Audio: <span id="cfgAudioInt">300s</span></div>
+      <div class="small">Watch: <span id="cfgWatchInt">30s</span></div>
+    </div>
+    <div class="section">
+      <h3>Thresholds</h3>
+      <div class="small">Min Trust: <span id="cfgTrust">0.65</span></div>
+      <div class="small">Watch Proximity (m): <span id="cfgProx">3.0</span></div>
+    </div>
+    <div class="section">
+      <h3>Session</h3>
+      <div class="small">User: <b id="user">MAHA-USER</b></div>
+      <div class="small">Device: <b id="device">EEC‑CSE‑LAP‑29</b></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="grid cols-3">
+      <div class="card">
+        <h3>Trust Score</h3>
+        <div class="kpi">
+          <span class="dot" style="background:#24d27b;"></span>
+          <div class="big" id="trustScore">0.00</div>
+        </div>
+        <div class="small">Rolling average of last 5 decisions</div>
+        <div class="fixed-chart">
+          <canvas id="trustChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Wi‑Fi RSSI (Top 5 APs)</h3>
+        <div class="small">Lower is weaker. Stable fingerprints → higher confidence.</div>
+        <div class="fixed-chart">
+          <canvas id="wifiChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Audio MFCC Entropy</h3>
+        <div class="small">Ambient drift detection.</div>
+        <div class="fixed-chart">
+          <canvas id="audioChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Decisions</h3>
+      <table>
+        <thead><tr><th>Time</th><th>Trust</th><th>Result</th><th>Reason</th></tr></thead>
+        <tbody id="decisionsBody"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Live Stream</h3>
+      <div class="small">Status: <span id="status" class="status">stopped</span></div>
+      <hr/>
+      <div class="grid cols-3">
+        <div>
+          <div class="small">Simulated Watch Proximity (m)</div>
+          <div class="fixed-chart">
+            <canvas id="watchChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Combined Feature Drift</div>
+          <div class="fixed-chart">
+            <canvas id="driftChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Decision Histogram</div>
+          <div class="fixed-chart">
+            <canvas id="histChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small">
+      © Continuous 2FA Frontend • Static demo UI for research & presentation.
+    </footer>
+  </main>
+</div>
+
+<!-- <script>
+const API_BASE = "http://127.0.0.1:5000/api";
+let isStreaming = false;
+let updateInterval;
+let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
+
+console.log("✅ app.js is loaded!");
+
+// Initialize all charts
+function initCharts() {
+    console.log("📊 Initializing charts...");
+    
+    // Trust Score Chart
+    trustChart = new Chart(document.getElementById('trustChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Trust Score',
+                data: [],
+                borderColor: '#24d27b',
+                tension: 0.4,
+                fill: false,
+                pointRadius: 3,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: { display: false }
+                },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // WiFi RSSI Chart
+    wifiChart = new Chart(document.getElementById('wifiChart'), {
+        type: 'bar',
+        data: {
+            labels: ['AP-1', 'AP-2', 'AP-3', 'AP-4', 'AP-5'],
+            datasets: [{
+                data: [-45, -52, -60, -65, -70],
+                backgroundColor: '#4f79bc',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: { 
+                    reverse: true,
+                    min: -90,
+                    max: -30,
+                    grid: { display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Audio MFCC Chart
+    audioChart = new Chart(document.getElementById('audioChart'), {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 13}, (_, i) => `M${i+1}`),
+            datasets: [{
+                data: Array(13).fill(0).map(() => Math.random() * 2 + 1),
+                borderColor: '#bc4f7d',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: { 
+                    min: 0,
+                    max: 4,
+                    grid: { display: false }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Watch Proximity Chart
+    watchChart = new Chart(document.getElementById('watchChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Distance (m)',
+                data: [],
+                borderColor: '#4fbca9',
+                tension: 0.4,
+                fill: false,
+                pointRadius: 2,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    min: 0,
+                    max: 10,
+                    grid: { display: false }
+                },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Feature Drift Chart
+    driftChart = new Chart(document.getElementById('driftChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Drift Score',
+                data: [],
+                borderColor: '#d27b24',
+                tension: 0.4,
+                fill: false,
+                pointRadius: 2,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    min: 0,
+                    max: 1,
+                    grid: { display: false }
+                },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Decision Histogram
+    histChart = new Chart(document.getElementById('histChart'), {
+        type: 'bar',
+        data: {
+            labels: ['ALLOW', 'CHALLENGE', 'BLOCK'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#24d27b', '#d2b624', '#d22424'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+    
+    console.log("✅ Charts initialized successfully");
+}
+
+// Update WiFi data
+function updateWiFiData() {
+    const newData = wifiChart.data.datasets[0].data.map(value => {
+        const change = (Math.random() - 0.5) * 5;
+        return Math.max(-90, Math.min(-30, value + change));
+    });
+    wifiChart.data.datasets[0].data = newData;
+    wifiChart.update();
+    
+    return Math.random() * 0.2 + 0.7; // Return WiFi stability score
+}
+
+// Update Audio data
+function updateAudioData() {
+    const newData = audioChart.data.datasets[0].data.map(value => {
+        const change = (Math.random() - 0.5) * 0.3;
+        return Math.max(0.5, Math.min(3.5, value + change));
+    });
+    audioChart.data.datasets[0].data = newData;
+    audioChart.update();
+    
+    return Math.random() * 0.2 + 0.6; // Return audio consistency score
+}
+
+// Update Watch data
+function updateWatchData() {
+    const distance = Math.random() * 8 + 1; // 1-9 meters
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Update watch chart
+    if (watchChart.data.labels.length > 8) {
+        watchChart.data.labels.shift();
+        watchChart.data.datasets[0].data.shift();
+    }
+    watchChart.data.labels.push(timestamp);
+    watchChart.data.datasets[0].data.push(distance);
+    watchChart.update();
+    
+    return Math.max(0, 1 - (distance / 10)); // Return proximity score
+}
+
+// Update Drift data
+function updateDriftData() {
+    const drift = Math.random() * 0.3;
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Update drift chart
+    if (driftChart.data.labels.length > 8) {
+        driftChart.data.labels.shift();
+        driftChart.data.datasets[0].data.shift();
+    }
+    driftChart.data.labels.push(timestamp);
+    driftChart.data.datasets[0].data.push(drift);
+    driftChart.update();
+    
+    return drift; // Return drift score
+}
+
+// Update histogram
+function updateHistogram(decision) {
+    const index = ['ALLOW', 'CHALLENGE', 'BLOCK'].indexOf(decision);
+    if (index !== -1) {
+        histChart.data.datasets[0].data[index]++;
+        histChart.update();
+    }
+}
+
+// Start streaming trust data
+function startStream() {
+    if (isStreaming) return;
+    
+    console.log("▶️ Starting stream...");
+    isStreaming = true;
+    
+    // Update UI
+    const statusElement = document.getElementById('status');
+    statusElement.textContent = 'active';
+    statusElement.className = 'status safe';
+    
+    document.getElementById('btnStart').classList.add('ghost');
+    document.getElementById('btnStop').classList.remove('ghost');
+    
+    // Clear any existing interval
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
+    
+    let counter = 0;
+    
+    // Start data generation every 2 seconds
+    updateInterval = setInterval(() => {
+        if (!isStreaming) return;
+        
+        counter++;
+        
+        // Update all sensor data
+        const wifiScore = updateWiFiData();
+        const audioScore = updateAudioData();
+        const watchScore = updateWatchData();
+        const driftScore = updateDriftData();
+        
+        // Calculate trust score (weighted average)
+        const trustScore = (wifiScore * 0.3) + (audioScore * 0.3) + (watchScore * 0.3) - (driftScore * 0.3);
+        const finalTrustScore = Math.max(0, Math.min(1, trustScore));
+        
+        // Update trust score display
+        document.getElementById('trustScore').textContent = finalTrustScore.toFixed(2);
+        
+        // Update trust chart
+        const now = new Date();
+        const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
+        
+        if (trustChart.data.labels.length > 15) {
+            trustChart.data.labels.shift();
+            trustChart.data.datasets[0].data.shift();
+        }
+        trustChart.data.labels.push(timeLabel);
+        trustChart.data.datasets[0].data.push(finalTrustScore);
+        trustChart.update('none');
+        
+        // Make decision every 10 seconds (every 5th update)
+        if (counter % 5 === 0) {
+            let result, note;
+            if (finalTrustScore > 0.7) {
+                result = "ALLOW";
+                note = "Normal behavior pattern";
+            } else if (finalTrustScore > 0.4) {
+                result = "CHALLENGE";
+                note = "Additional verification required";
+            } else {
+                result = "BLOCK";
+                note = "Suspicious activity detected";
+            }
+            
+            // Add to decisions table
+            const tbody = document.getElementById('decisionsBody');
+            const row = document.createElement('tr');
+            const nowTime = new Date().toLocaleTimeString();
+            
+            row.innerHTML = `
+                <td>${nowTime}</td>
+                <td>${finalTrustScore.toFixed(2)}</td>
+                <td>${result}</td>
+                <td>${note}</td>
+            `;
+            
+            // Add to beginning of table
+            if (tbody.firstChild) {
+                tbody.insertBefore(row, tbody.firstChild);
+            } else {
+                tbody.appendChild(row);
+            }
+            
+            // Keep only last 10 decisions
+            while (tbody.children.length > 10) {
+                tbody.removeChild(tbody.lastChild);
+            }
+            
+            // Update histogram
+            updateHistogram(result);
+            
+            console.log(`Decision: ${result} (${finalTrustScore.toFixed(2)})`);
+            
+            // Send to backend (optional)
+            try {
+                fetch(`${API_BASE}/auth/decision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 1,
+                        trust: finalTrustScore,
+                        result: result,
+                        note: note
+                    })
+                });
+            } catch (error) {
+                console.log("Backend not available, continuing locally");
+            }
+        }
+        
+        console.log(`Update #${counter}: ${finalTrustScore.toFixed(2)}`);
+        
+    }, 2000); // Update every 2 seconds
+}
+
+// Stop streaming
+function stopStream() {
+    console.log("⏹️ Stopping stream...");
+    isStreaming = false;
+    
+    // Update UI
+    const statusElement = document.getElementById('status');
+    statusElement.textContent = 'stopped';
+    statusElement.className = 'status';
+    
+    document.getElementById('btnStart').classList.remove('ghost');
+    document.getElementById('btnStop').classList.add('ghost');
+    
+    // Clear the update interval
+    if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 DOM loaded, initializing...");
+    
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.error("❌ Chart.js not loaded!");
+        return;
+    }
+    
+    // Initialize charts
+    initCharts();
+    
+    // Add event listeners to buttons
+    const startBtn = document.getElementById('btnStart');
+    const stopBtn = document.getElementById('btnStop');
+    
+    if (startBtn && stopBtn) {
+        startBtn.addEventListener('click', startStream);
+        stopBtn.addEventListener('click', stopStream);
+        console.log("✅ Button listeners added");
+        
+        // Set initial button states
+        stopBtn.classList.add('ghost');
+    } else {
+        console.error("❌ Buttons not found!");
+    }
+    
+    console.log("✅ System ready - click 'Start Stream' to begin");
+});
+</script> -->
+     </main>
+</div>
+<script src="user/app.js"></script>
+</body>
+</html> 
