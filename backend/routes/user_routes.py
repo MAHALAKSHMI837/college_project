@@ -28,8 +28,8 @@ def register_user():
 @user_bp.route("/decisions/<int:user_id>", methods=["GET"])
 def get_user_decisions(user_id):
     try:
-        from backend.models.decision_model import get_decisions_for_user
-        decisions = get_decisions_for_user(user_id)
+        from backend.models.decision_model import get_user_decisions
+        decisions = get_user_decisions(user_id)
         return jsonify({"items": decisions})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

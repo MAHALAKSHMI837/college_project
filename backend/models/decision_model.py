@@ -1,128 +1,54 @@
-# # from backend.utils.db import get_db
-# # import datetime
-
-
-# # def get_decisions_for_user(user_id):
-# #     conn = get_db()
-# #     cur = conn.cursor()
-# #     cur.execute("SELECT id, trust_score, result, note, created_at FROM decisions WHERE user_id = %s ORDER BY created_at DESC LIMIT 20", (user_id,))
-# #     rows = cur.fetchall()
-# #     cur.close()
-# #     conn.close()
-# #     return [
-# #         {"id": r[0], "trust": float(r[1]), "result": r[2], "note": r[3], "timestamp": r[4].isoformat()}
-# #         for r in rows
-# #     ]
-
-# # def log_decision(user_id, trust, result, note=""):
-# #     conn = get_db()
-# #     cur = conn.cursor()
-# #     cur.execute("""
-# #         INSERT INTO decisions (user_id, timestamp, trust, result, note)
-# #         VALUES (?, ?, ?, ?, ?)
-# #     """, (user_id, datetime.datetime.now().isoformat(), trust, result, note))
-# #     conn.commit()
-# #     conn.close()
-
-# # def get_recent_decisions(limit=20):
-# #     conn = get_db()
-# #     rows = conn.execute(
-# #         "SELECT * FROM decisions ORDER BY timestamp DESC LIMIT ?", (limit,)
-# #     ).fetchall()
-# #     conn.close()
-# #     return [dict(r) for r in rows]
-
-# # def get_user_decisions(user_id, limit=20):
-# #     conn = get_db()
-# #     rows = conn.execute(
-# #         "SELECT * FROM decisions WHERE user_id=? ORDER BY timestamp DESC LIMIT ?",
-# #         (user_id, limit)
-# #     ).fetchall()
-# #     conn.close()
-# #     return [dict(r) for r in rows]
-
-# from backend.models.db import get_db
-
-# # Fetch decisions for a given user
-# def get_decisions_for_user(user_id):
-#     conn = get_db()
-#     if not conn:
-#         return []   # fail gracefully if DB is down
-
-#     cur = conn.cursor()
-#     cur.execute(
-#         "SELECT id, trust_score, result, note, created_at "
-#         "FROM decisions WHERE user_id = %s "
-#         "ORDER BY created_at DESC LIMIT 20",
-#         (user_id,)
-#     )
-#     rows = cur.fetchall()
-#     cur.close()
-#     conn.close()
-
-#     return [
-#         {
-#             "id": r[0],
-#             "trust": float(r[1]),
-#             "result": r[2],
-#             "note": r[3],
-#             "timestamp": r[4].isoformat()
-#         }
-#         for r in rows
-#     ]
-
-# # Insert a new decision
-# def create_decision(user_id, trust_score, result, note=""):
-#     conn = get_db()
-#     if not conn:
-#         return False
-
-#     cur = conn.cursor()
-#     cur.execute(
-#         "INSERT INTO decisions (user_id, trust_score, result, note) VALUES (%s, %s, %s, %s)",
-#         (user_id, trust_score, result, note)
-#     )
-#     conn.commit()
-#     cur.close()
-#     conn.close()
-#     return True
-# # Fetch recent decisions across all users
-
-
 from backend.utils.db import get_db
 
-# Save a new decision to the database
 def save_decision(user_id, trust, result, note=""):
-    conn = get_db()
-    if not conn:
-        return None
-    try:
-        cur = conn.cursor()
-        cur.execute(
-            """
-            INSERT INTO decisions (user_id, trust, result, note, timestamp)
-            VALUES (%s, %s, %s, %s, NOW())
-            RETURNING id;
-            """,
-            (user_id, trust, result, note),
-        )
-        conn.commit()
-        decision_id = cur.fetchone()[0]
-        return decision_id
-    finally:
-        conn.close()
-        cur.close()
-
-# Fetch recent decisions across all users
-def get_all_decisions(limit=50):
     """
-    Get all recent decisions across all users
+    Save an authentication decision to the database
+    """
+    conn = get_db()
+    if not conn: 
+        print("❌ Database connection failed")
+        return False
     
-    Args:
-        limit (int): Maximum number of decisions to return
-    
-    Returns:
-        list: List of decision dictionaries with user information
+    cur = conn.cursor()
+    try:
+        # Try with 'trust' column first (most common)
+        try:
+            cur.execute(
+                "INSERT INTO decisions (user_id, trust, result, note) VALUES (%s, %s, %s, %s)",
+                (user_id, trust, result, note)
+            )
+            conn.commit()
+            print(f"✅ Decision saved with 'trust' column: User {user_id}, Trust: {trust}, Result: {result}")
+            return True
+        except Exception as e:
+            conn.rollback()
+            print(f"⚠️  'trust' column failed, trying 'trust_score': {e}")
+            
+            # Try with 'trust_score' column
+            try:
+                cur.execute(
+                    "INSERT INTO decisions (user_id, trust_score, result, note) VALUES (%s, %s, %s, %s)",
+                    (user_id, trust, result, note)
+                )
+                conn.commit()
+                print(f"✅ Decision saved with 'trust_score' column: User {user_id}, Trust: {trust}, Result: {result}")
+                return True
+            except Exception as e2:
+                conn.rollback()
+                print(f"❌ Both column attempts failed: {e2}")
+                return False
+                
+    except Exception as e:
+        print(f"❌ Error saving decision: {e}")
+        conn.rollback()
+        return False
+    finally:
+        cur.close()
+        conn.close()
+
+def get_user_decisions(user_id):
+    """
+    Get recent decisions for a specific user
     """
     conn = get_db()
     if not conn: 
@@ -131,13 +57,78 @@ def get_all_decisions(limit=50):
     
     cur = conn.cursor()
     try:
-        cur.execute("""
-            SELECT d.id, u.id as user_id, u.username, d.trust, d.result, d.note, d.timestamp
-            FROM decisions d
-            JOIN users u ON d.user_id = u.id
-            ORDER BY d.timestamp DESC
-            LIMIT %s
-        """, (limit,))
+        # Try with 'trust' and 'created_at' columns first
+        try:
+            cur.execute(
+                "SELECT id, trust, result, note, created_at FROM decisions WHERE user_id=%s ORDER BY created_at DESC LIMIT 20",
+                (user_id,)
+            )
+        except Exception as e:
+            print(f"⚠️  First query failed, trying alternatives: {e}")
+            # Try with 'trust_score' and 'timestamp'
+            try:
+                cur.execute(
+                    "SELECT id, trust_score, result, note, timestamp FROM decisions WHERE user_id=%s ORDER BY timestamp DESC LIMIT 20",
+                    (user_id,)
+                )
+            except Exception as e2:
+                print(f"❌ All query attempts failed: {e2}")
+                return []
+        
+        rows = cur.fetchall()
+        decisions = []
+        for row in rows:
+            decisions.append({
+                "id": row[0],
+                "trust": float(row[1]),
+                "result": row[2],
+                "note": row[3] or "",
+                "timestamp": row[4]
+            })
+        print(f"✅ Retrieved {len(decisions)} decisions for user {user_id}")
+        return decisions
+        
+    except Exception as e:
+        print(f"❌ Error retrieving decisions: {e}")
+        return []
+    finally:
+        cur.close()
+        conn.close()
+
+def get_all_decisions(limit=50):
+    """
+    Get all recent decisions across all users
+    """
+    conn = get_db()
+    if not conn: 
+        print("❌ Database connection failed")
+        return []
+    
+    cur = conn.cursor()
+    try:
+        # Try first combination
+        try:
+            cur.execute("""
+                SELECT d.id, u.id as user_id, u.username, d.trust, d.result, d.note, d.created_at
+                FROM decisions d
+                JOIN users u ON d.user_id = u.id
+                ORDER BY d.created_at DESC
+                LIMIT %s
+            """, (limit,))
+        except Exception as e:
+            print(f"⚠️  First query failed: {e}")
+            # Try alternative column names
+            try:
+                cur.execute("""
+                    SELECT d.id, u.id as user_id, u.username, d.trust_score, d.result, d.note, d.timestamp
+                    FROM decisions d
+                    JOIN users u ON d.user_id = u.id
+                    ORDER BY d.timestamp DESC
+                    LIMIT %s
+                """, (limit,))
+            except Exception as e2:
+                print(f"❌ All query attempts failed: {e2}")
+                return []
         
         rows = cur.fetchall()
         decisions = []
@@ -153,6 +144,7 @@ def get_all_decisions(limit=50):
             })
         print(f"✅ Retrieved {len(decisions)} decisions")
         return decisions
+        
     except Exception as e:
         print(f"❌ Error retrieving all decisions: {e}")
         return []
@@ -160,16 +152,9 @@ def get_all_decisions(limit=50):
         cur.close()
         conn.close()
 
-# Get statistics about decisions
 def get_decision_stats(user_id=None):
     """
     Get statistics about decisions
-    
-    Args:
-        user_id (int, optional): If provided, get stats for specific user
-    
-    Returns:
-        dict: Statistics about decisions
     """
     conn = get_db()
     if not conn: 
@@ -178,9 +163,12 @@ def get_decision_stats(user_id=None):
     
     cur = conn.cursor()
     try:
-        if user_id:
-            # Get stats for specific user
-            cur.execute("""
+        where_clause = "WHERE user_id = %s" if user_id else ""
+        params = (user_id,) if user_id else ()
+        
+        # Try with 'trust' column first
+        try:
+            query = f"""
                 SELECT 
                     COUNT(*) as total_decisions,
                     AVG(trust) as avg_trust,
@@ -188,34 +176,95 @@ def get_decision_stats(user_id=None):
                     SUM(CASE WHEN result = 'CHALLENGE' THEN 1 ELSE 0 END) as challenge_count,
                     SUM(CASE WHEN result = 'BLOCK' THEN 1 ELSE 0 END) as block_count
                 FROM decisions 
-                WHERE user_id = %s
-            """, (user_id,))
-        else:
-            # Get overall stats
-            cur.execute("""
-                SELECT 
-                    COUNT(*) as total_decisions,
-                    AVG(trust) as avg_trust,
-                    SUM(CASE WHEN result = 'ALLOW' THEN 1 ELSE 0 END) as allow_count,
-                    SUM(CASE WHEN result = 'CHALLENGE' THEN 1 ELSE 0 END) as challenge_count,
-                    SUM(CASE WHEN result = 'BLOCK' THEN 1 ELSE 0 END) as block_count
-                FROM decisions
-            """)
+                {where_clause}
+            """
+            cur.execute(query, params)
+        except Exception as e:
+            print(f"⚠️  'trust' column failed, trying 'trust_score': {e}")
+            # Try with 'trust_score' column
+            try:
+                query = f"""
+                    SELECT 
+                        COUNT(*) as total_decisions,
+                        AVG(trust_score) as avg_trust,
+                        SUM(CASE WHEN result = 'ALLOW' THEN 1 ELSE 0 END) as allow_count,
+                        SUM(CASE WHEN result = 'CHALLENGE' THEN 1 ELSE 0 END) as challenge_count,
+                        SUM(CASE WHEN result = 'BLOCK' THEN 1 ELSE 0 END) as block_count
+                    FROM decisions 
+                    {where_clause}
+                """
+                cur.execute(query, params)
+            except Exception as e2:
+                print(f"❌ Both column attempts failed: {e2}")
+                return {
+                    "total_decisions": 0,
+                    "avg_trust": 0.0,
+                    "allow_count": 0,
+                    "challenge_count": 0,
+                    "block_count": 0
+                }
         
         row = cur.fetchone()
-        stats = {
-            "total_decisions": row[0] or 0,
-            "avg_trust": float(row[1] or 0) if row[1] is not None else 0,
-            "allow_count": row[2] or 0,
-            "challenge_count": row[3] or 0,
-            "block_count": row[4] or 0
-        }
         
-        print(f"✅ Retrieved decision statistics")
-        return stats
+        if row and row[0] is not None:
+            stats = {
+                "total_decisions": row[0] or 0,
+                "avg_trust": round(float(row[1] or 0), 2),
+                "allow_count": row[2] or 0,
+                "challenge_count": row[3] or 0,
+                "block_count": row[4] or 0
+            }
+            print(f"✅ Retrieved decision statistics: {stats}")
+            return stats
+        else:
+            return {
+                "total_decisions": 0,
+                "avg_trust": 0.0,
+                "allow_count": 0,
+                "challenge_count": 0,
+                "block_count": 0
+            }
+        
     except Exception as e:
         print(f"❌ Error retrieving decision stats: {e}")
-        return {}
+        return {
+            "total_decisions": 0,
+            "avg_trust": 0.0,
+            "allow_count": 0,
+            "challenge_count": 0,
+            "block_count": 0
+        }
     finally:
         cur.close()
         conn.close()
+
+# Debug function to check schema
+def debug_schema():
+    """Debug function to check the actual table schema"""
+    conn = get_db()
+    if not conn: 
+        print("❌ Database connection failed")
+        return
+    
+    cur = conn.cursor()
+    try:
+        # Check decisions table
+        cur.execute("""
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'decisions' 
+            ORDER BY ordinal_position;
+        """)
+        columns = cur.fetchall()
+        print("📊 Decisions table columns:")
+        for col in columns:
+            print(f"  - {col[0]} ({col[1]})")
+            
+    except Exception as e:
+        print(f"❌ Error checking schema: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
+# Uncomment the line below to debug your schema when the module loads
+# debug_schema()

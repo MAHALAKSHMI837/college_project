@@ -1,63 +1,39 @@
-# import sqlite3
-# import os
-# DB_PATH = "data/users.db"
+import psycopg2
+import os
+from dotenv import load_dotenv
 
-# def get_db():
-#     conn = sqlite3.connect(DB_PATH)
-#     conn.row_factory = sqlite3.Row
-#     return conn
-
-# DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "app.db")
-
-# def init_db():
-#     conn = get_db()
-#     cur = conn.cursor()
-
-#     # Users table
-#     cur.execute("""
-#     CREATE TABLE IF NOT EXISTS users (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         username TEXT NOT NULL,
-#         device TEXT NOT NULL,
-#         min_trust REAL DEFAULT 0.65,
-#         proximity_limit REAL DEFAULT 3.0
-#     )
-#     """)
-
-#     # Decisions table
-#     cur.execute("""
-#     CREATE TABLE IF NOT EXISTS decisions (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         user_id INTEGER,
-#         timestamp TEXT,
-#         trust REAL,
-#         result TEXT,
-#         note TEXT,
-#         FOREIGN KEY(user_id) REFERENCES users(id)
-#     )
-#     """)
-
-#     conn.commit()
-#     conn.close()
-  
-import psycopg2 # pyright: ignore[reportMissingModuleSource]
-#from psycopg2.extras import RealDictCursor # type: ignore
+load_dotenv()
 
 def get_db():
+    """
+    Get a database connection using psycopg2
+    """
     try:
-       conn = psycopg2.connect(
-       dbname="auth_system",
-       user="postgres",
-       password="1234",
-       host="localhost",
-       port="5432"
-)
-       return conn
+        conn = psycopg2.connect(
+            dbname=os.getenv("DB_NAME", "auth_system"),
+            user=os.getenv("DB_USER", "postgres"),
+            password=os.getenv("DB_PASSWORD", "yourpassword"),
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5432")
+        )
+        return conn
     except Exception as e:
-        print("❌ Database connection failed:", e)
+        print("❌ DB Connection Error:", e)
         return None
 
+def test_connection():
+    """
+    Test the database connection
+    """
+    conn = get_db()
+    if conn:
+        print("✅ Database connection successful")
+        conn.close()
+        return True
+    else:
+        print("❌ Database connection failed")
+        return False
 
-
-
-
+# Test connection when module is run directly
+if __name__ == "__main__":
+    test_connection()

@@ -1,22 +1,3 @@
-# from flask import Blueprint, request, jsonify
-
-# auth_bp = Blueprint("auth", __name__)
-
-# # For demo: hardcoded admin user
-# ADMIN_USERNAME = "admin"
-# ADMIN_PASSWORD = "admin123"
-
-# @auth_bp.route("/login", methods=["POST"])
-# def login():
-#     data = request.json
-#     if not data or "username" not in data or "password" not in data:
-#         return jsonify({"error": "Missing credentials"}), 400
-
-#     if data["username"] == ADMIN_USERNAME and data["password"] == ADMIN_PASSWORD:
-#         return jsonify({"status": "success", "role": "admin"})
-#     else:
-#         return jsonify({"error": "Invalid username or password"}), 401
-# # 
 
 from flask import Blueprint, request, jsonify
 from backend.utils.db import get_db
@@ -25,22 +6,34 @@ import bcrypt
 import jwt
 import datetime
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 auth_bp = Blueprint("auth", __name__)
-JWT_SECRET = "your_secret_key_change_in_production"  # For development only
 
-# Login endpoint
+# Get JWT secret from environment variable with a fallback for development
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    # Fallback for development - generate a random one if not set
+    import secrets
+    JWT_SECRET = secrets.token_urlsafe(32)
+    print(f"⚠️  JWT_SECRET not set. Using generated secret: {JWT_SECRET}")
+    print("⚠️  For production, set JWT_SECRET in your .env file")
+
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.json
-    username = data.get("username")
-    password = data.get("password")
+    data = request.get_json()
+    username = data.get("username") if data else None
+    password = data.get("password") if data else None
     
     if not username or not password:
         return jsonify({"error": "Username and password required"}), 400
     
     conn = get_db()
-    if not conn: return jsonify({"error": "Database error"}), 500
+    if not conn: 
+        return jsonify({"error": "Database error"}), 500
     
     try:
         cur = conn.cursor()
@@ -71,7 +64,6 @@ def login():
         cur.close()
         conn.close()
 
-# Decision endpoint
 @auth_bp.route("/decision", methods=["POST"])
 def make_decision():
     """
@@ -136,3 +128,12 @@ def make_decision():
     except Exception as e:
         print(f"❌ Error in decision endpoint: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
+@auth_bp.route("/test", methods=["GET"])
+def test_auth():
+    """Test endpoint to verify auth blueprint is working"""
+    return jsonify({
+        "message": "Auth blueprint is working!",
+        "jwt_secret_set": bool(JWT_SECRET),
+        "jwt_secret_length": len(JWT_SECRET) if JWT_SECRET else 0
+    })
