@@ -104,7 +104,7 @@
 </body>
 </html> -->
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -208,7 +208,26 @@
           <div class="fixed-chart">
             <canvas id="histChart"></canvas>
           </div>
-        </div>
+         
+         <div class="user-info">
+         <span id="userWelcome">Welcome, User</span>
+        <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+          </div>
+         <div class="section">
+           <h3>Session</h3>
+          <div class="small">User: <b id="user">Loading...</b></div>
+          <div class="small">Device: <b id="device">Loading...</b></div>
+          <button id="btnLogout" class="btn ghost" style="margin-top: 10px; width: 100%;">Logout</button>
+         </div>
+         <script>
+           // Debug authentication status
+          console.log('=== AUTHENTICATION DEBUG ===');
+          console.log('Token exists:', !!localStorage.getItem('authToken'));
+          console.log('User ID:', localStorage.getItem('userId'));
+          console.log('Username:', localStorage.getItem('username'));
+          console.log('Current URL:', window.location.href);
+          console.log('============================');
+            </script>
       </div>
     </section>
 
@@ -217,426 +236,1102 @@
     </footer>
   </main>
 </div>
+</div>
+<script src="user/app.js"></script>
+</body>
+</html>  --> 
 
-<!-- <script>
-const API_BASE = "http://127.0.0.1:5000/api";
-let isStreaming = false;
-let updateInterval;
-let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
-
-console.log("✅ app.js is loaded!");
-
-// Initialize all charts
-function initCharts() {
-    console.log("📊 Initializing charts...");
-    
-    // Trust Score Chart
-    trustChart = new Chart(document.getElementById('trustChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Trust Score',
-                data: [],
-                borderColor: '#24d27b',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 3,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 1,
-                    grid: { display: false }
-                },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // WiFi RSSI Chart
-    wifiChart = new Chart(document.getElementById('wifiChart'), {
-        type: 'bar',
-        data: {
-            labels: ['AP-1', 'AP-2', 'AP-3', 'AP-4', 'AP-5'],
-            datasets: [{
-                data: [-45, -52, -60, -65, -70],
-                backgroundColor: '#4f79bc',
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: { 
-                    reverse: true,
-                    min: -90,
-                    max: -30,
-                    grid: { display: false }
-                }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Audio MFCC Chart
-    audioChart = new Chart(document.getElementById('audioChart'), {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 13}, (_, i) => `M${i+1}`),
-            datasets: [{
-                data: Array(13).fill(0).map(() => Math.random() * 2 + 1),
-                borderColor: '#bc4f7d',
-                tension: 0.4,
-                fill: false,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: { 
-                    min: 0,
-                    max: 4,
-                    grid: { display: false }
-                },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Watch Proximity Chart
-    watchChart = new Chart(document.getElementById('watchChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Distance (m)',
-                data: [],
-                borderColor: '#4fbca9',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 10,
-                    grid: { display: false }
-                },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Feature Drift Chart
-    driftChart = new Chart(document.getElementById('driftChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Drift Score',
-                data: [],
-                borderColor: '#d27b24',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 1,
-                    grid: { display: false }
-                },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Decision Histogram
-    histChart = new Chart(document.getElementById('histChart'), {
-        type: 'bar',
-        data: {
-            labels: ['ALLOW', 'CHALLENGE', 'BLOCK'],
-            datasets: [{
-                data: [0, 0, 0],
-                backgroundColor: ['#24d27b', '#d2b624', '#d22424'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: { beginAtZero: true, grid: { display: false } },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-    
-    console.log("✅ Charts initialized successfully");
-}
-
-// Update WiFi data
-function updateWiFiData() {
-    const newData = wifiChart.data.datasets[0].data.map(value => {
-        const change = (Math.random() - 0.5) * 5;
-        return Math.max(-90, Math.min(-30, value + change));
-    });
-    wifiChart.data.datasets[0].data = newData;
-    wifiChart.update();
-    
-    return Math.random() * 0.2 + 0.7; // Return WiFi stability score
-}
-
-// Update Audio data
-function updateAudioData() {
-    const newData = audioChart.data.datasets[0].data.map(value => {
-        const change = (Math.random() - 0.5) * 0.3;
-        return Math.max(0.5, Math.min(3.5, value + change));
-    });
-    audioChart.data.datasets[0].data = newData;
-    audioChart.update();
-    
-    return Math.random() * 0.2 + 0.6; // Return audio consistency score
-}
-
-// Update Watch data
-function updateWatchData() {
-    const distance = Math.random() * 8 + 1; // 1-9 meters
-    const timestamp = new Date().toLocaleTimeString();
-    
-    // Update watch chart
-    if (watchChart.data.labels.length > 8) {
-        watchChart.data.labels.shift();
-        watchChart.data.datasets[0].data.shift();
-    }
-    watchChart.data.labels.push(timestamp);
-    watchChart.data.datasets[0].data.push(distance);
-    watchChart.update();
-    
-    return Math.max(0, 1 - (distance / 10)); // Return proximity score
-}
-
-// Update Drift data
-function updateDriftData() {
-    const drift = Math.random() * 0.3;
-    const timestamp = new Date().toLocaleTimeString();
-    
-    // Update drift chart
-    if (driftChart.data.labels.length > 8) {
-        driftChart.data.labels.shift();
-        driftChart.data.datasets[0].data.shift();
-    }
-    driftChart.data.labels.push(timestamp);
-    driftChart.data.datasets[0].data.push(drift);
-    driftChart.update();
-    
-    return drift; // Return drift score
-}
-
-// Update histogram
-function updateHistogram(decision) {
-    const index = ['ALLOW', 'CHALLENGE', 'BLOCK'].indexOf(decision);
-    if (index !== -1) {
-        histChart.data.datasets[0].data[index]++;
-        histChart.update();
-    }
-}
-
-// Start streaming trust data
-function startStream() {
-    if (isStreaming) return;
-    
-    console.log("▶️ Starting stream...");
-    isStreaming = true;
-    
-    // Update UI
-    const statusElement = document.getElementById('status');
-    statusElement.textContent = 'active';
-    statusElement.className = 'status safe';
-    
-    document.getElementById('btnStart').classList.add('ghost');
-    document.getElementById('btnStop').classList.remove('ghost');
-    
-    // Clear any existing interval
-    if (updateInterval) {
-        clearInterval(updateInterval);
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #101a2b;
+      --muted: #7b8aa0;
+      --text: #e7edf7;
+      --accent: #5b8cff;
+      --good: #24d27b;
+      --bad: #ff6b6b;
     }
     
-    let counter = 0;
+    * {
+      box-sizing: border-box;
+    }
     
-    // Start data generation every 2 seconds
-    updateInterval = setInterval(() => {
+    html, body {
+      height: 100%;
+    }
+    
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b1220, #0d1526);
+      color: var(--text);
+      font: 15px/1.5 ui-sans-serif, system-ui, Segoe UI, Roboto;
+    }
+    
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 64px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .topbar {
+      grid-column: 1/3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #0f1830;
+      border-bottom: 1px solid #162444;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    
+    .logo .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+    }
+    
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+      background: #4a7dff;
+      transform: translateY(-1px);
+    }
+    
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid #22365b;
+      color: #c8d4ea;
+    }
+    
+    .btn.ghost:hover {
+      background: #22365b;
+      color: #e7edf7;
+    }
+    
+    .sidebar {
+      grid-row: 2/3;
+      background: #0d162b;
+      border-right: 1px solid #162444;
+      padding: 16px;
+      overflow: auto;
+    }
+    
+    .sidebar .section {
+      margin-bottom: 20px;
+    }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #132340;
+      color: #b9c6db;
+      font-size: 12px;
+    }
+    
+    .main {
+      grid-row: 2/3;
+      padding: 16px;
+      overflow: auto;
+    }
+    
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .card {
+      background: var(--panel);
+      border: 1px solid #162444;
+      border-radius: 16px;
+      padding: 16px;
+      height: fit-content;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .kpi {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .kpi .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    
+    .kpi .big {
+      font-size: 28px;
+      font-weight: 800;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #64748b;
+      color: white;
+    }
+    
+    .status.safe {
+      background: var(--good);
+    }
+    
+    .status.anomalous {
+      background: var(--bad);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 10px;
+    }
+    
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+    }
+    
+    th {
+      background-color: #132340;
+      color: #b9c6db;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    tbody tr {
+      background: #0f1a31;
+      border: 1px solid #182545;
+      transition: background-color 0.2s ease;
+    }
+    
+    tbody tr:hover {
+      background: #1a2a45;
+    }
+    
+    tbody tr td:first-child {
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+    
+    tbody tr td:last-child {
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    
+    footer {
+      margin-top: 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+    
+    .chart-container {
+      width: 100%;
+      height: 180px;
+      background: #0c162b;
+      border-radius: 12px;
+      border: 1px solid #17284a;
+      margin-top: 10px;
+      position: relative;
+    }
+    
+    hr {
+      border: 0;
+      border-top: 1px dashed #26406f;
+      margin: 10px 0;
+    }
+    
+    .search {
+      background: #0b152a;
+      border: 1px solid #1b2d53;
+      color: #dbe7ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      min-width: 240px;
+      font-size: 14px;
+    }
+    
+    .search::placeholder {
+      color: #7b8aa0;
+    }
+    
+    .search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(91, 140, 255, 0.2);
+    }
+    
+    /* Fix for chart layout */
+    .fixed-chart {
+      position: relative;
+      height: 180px;
+      width: 100%;
+    }
+    
+    /* User info styles */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .user-welcome {
+      font-size: 14px;
+      color: #b9c6db;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1200px) {
+      .grid.cols-3 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 64px auto 1fr;
+      }
+      
+      .topbar {
+        grid-column: 1/2;
+      }
+      
+      .sidebar {
+        grid-row: 2/3;
+        border-right: none;
+        border-bottom: 1px solid #162444;
+      }
+      
+      .main {
+        grid-row: 3/4;
+      }
+      
+      .grid.cols-3 {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+      }
+      
+      .search {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+    
+    /* Animation for trust score */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .trust-pulse {
+      animation: pulse 0.5s ease-in-out;
+    }
+    
+    /* Decision result colors */
+    .decision-allow {
+      color: var(--good);
+      font-weight: 600;
+    }
+    
+    .decision-challenge {
+      color: #ffcc00;
+      font-weight: 600;
+    }
+    
+    .decision-block {
+      color: var(--bad);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <span class="dot"></span> 
+      Continuous 2FA 
+      <span class="badge">Wi‑Fi + Audio + Watch</span>
+    </div>
+    <div class="controls">
+      <input id="search" class="search" placeholder="Search events…"/>
+      <button id="btnStart" class="btn">Start Stream</button>
+      <button id="btnStop" class="btn ghost">Stop</button>
+      <div class="user-info">
+        <span class="user-welcome" id="userWelcome">Welcome, User</span>
+        <button id="btnLogout" class="btn ghost">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Navigation</h3>
+      <div class="small">Dashboard · Streams · Decisions · Settings</div>
+    </div>
+    <div class="section">
+      <h3>Sampling</h3>
+      <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
+      <div class="small">Audio: <span id="cfgAudioInt">300s</span></div>
+      <div class="small">Watch: <span id="cfgWatchInt">30s</span></div>
+    </div>
+    <div class="section">
+      <h3>Thresholds</h3>
+      <div class="small">Min Trust: <span id="cfgTrust">0.65</span></div>
+      <div class="small">Watch Proximity (m): <span id="cfgProx">3.0</span></div>
+    </div>
+    <div class="section">
+      <h3>Session</h3>
+      <div class="small">User: <b id="user">Loading...</b></div>
+      <div class="small">Device: <b id="device">Loading...</b></div>
+      <div class="small">Status: <span id="status" class="status">stopped</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="grid cols-3">
+      <div class="card">
+        <h3>Trust Score</h3>
+        <div class="kpi">
+          <span class="dot" style="background:#24d27b;"></span>
+          <div class="big" id="trustScore">0.00</div>
+        </div>
+        <div class="small">Real-time authentication confidence score</div>
+        <div class="chart-container">
+          <canvas id="trustChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Wi‑Fi RSSI (Top 5 APs)</h3>
+        <div class="small">Lower is weaker. Stable fingerprints → higher confidence.</div>
+        <div class="chart-container">
+          <canvas id="wifiChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Audio MFCC Entropy</h3>
+        <div class="small">Ambient sound pattern analysis for location verification.</div>
+        <div class="chart-container">
+          <canvas id="audioChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Decisions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Trust</th>
+            <th>Result</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="decisionsBody">
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--muted);">No decisions yet. Start the stream to begin monitoring.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Live Stream Analytics</h3>
+      <div class="small">Real-time behavioral biometric monitoring</div>
+      <hr/>
+      <div class="grid cols-3">
+        <div>
+          <div class="small">Watch Proximity (m)</div>
+          <div class="chart-container">
+            <canvas id="watchChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Feature Drift Detection</div>
+          <div class="chart-container">
+            <canvas id="driftChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Decision Distribution</div>
+          <div class="chart-container">
+            <canvas id="histChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Continuous 2FA Authentication System • Real-time Behavioral Biometrics • Secure Access Monitoring
+    </footer>
+  </main>
+</div>
+
+<script src="/user/app.js"></script>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="user/user.css">
+  <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span>
+    </div>
+    <div class="controls">
+      <input id="search" class="search" placeholder="Search events…"/>
+      <button id="btnStart" class="btn">Start Stream</button>
+      <button id="btnStop" class="btn ghost">Stop</button>
+      <div class="user-info">
+        <span id="userWelcome">Welcome, User</span>
+        <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Navigation</h3>
+      <div class="small">Dashboard · Streams · Decisions · Settings</div>
+    </div>
+    <div class="section">
+      <h3>Sampling</h3>
+      <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
+      <div class="small">Audio: <span id="cfgAudioInt">300s</span></div>
+      <div class="small">Watch: <span id="cfgWatchInt">30s</span></div>
+    </div>
+    <div class="section">
+      <h3>Thresholds</h3>
+      <div class="small">Min Trust: <span id="cfgTrust">0.65</span></div>
+      <div class="small">Watch Proximity (m): <span id="cfgProx">3.0</span></div>
+    </div>
+    <div class="section">
+      <h3>Session</h3>
+      <div class="small">User: <b id="user">Loading...</b></div>
+      <div class="small">Device: <b id="device">Loading...</b></div>
+      <div class="small">Status: <span id="status" class="status">stopped</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="grid cols-3">
+      <div class="card">
+        <h3>Trust Score</h3>
+        <div class="kpi">
+          <span class="dot" style="background:#24d27b;"></span>
+          <div class="big" id="trustScore">0.00</div>
+        </div>
+        <div class="small">Real-time authentication confidence</div>
+        <div class="fixed-chart">
+          <canvas id="trustChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Wi‑Fi RSSI (Top 5 APs)</h3>
+        <div class="small">Lower is weaker. Stable fingerprints → higher confidence.</div>
+        <div class="fixed-chart">
+          <canvas id="wifiChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Audio MFCC Entropy</h3>
+        <div class="small">Ambient sound pattern analysis</div>
+        <div class="fixed-chart">
+          <canvas id="audioChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Decisions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Trust</th>
+            <th>Result</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="decisionsBody">
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--muted);">No decisions yet. Start the stream to begin monitoring.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Live Stream Analytics</h3>
+      <div class="small">Real-time behavioral biometric monitoring</div>
+      <hr/>
+      <div class="grid cols-3">
+        <div>
+          <div class="small">Watch Proximity (m)</div>
+          <div class="fixed-chart">
+            <canvas id="watchChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Feature Drift Detection</div>
+          <div class="fixed-chart">
+            <canvas id="driftChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Decision Distribution</div>
+          <div class="fixed-chart">
+            <canvas id="histChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Continuous 2FA Authentication System • Real-time Behavioral Biometrics
+    </footer>
+  </main>
+</div>
+
+<script src="user/app.js"></script>
+</body>
+</html> --> 
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0b1220;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #22365b;
+    }
+    
+    .btn {
+      background: #5b8cff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    
+    .btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    
+    .card {
+      background: #101a2b;
+      border: 1px solid #22365b;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .trust-score {
+      font-size: 48px;
+      font-weight: bold;
+      color: #24d27b;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .chart-container {
+      height: 200px;
+      margin: 10px 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #22365b;
+    }
+    
+    th {
+      background: #0d162b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Continuous 2FA Dashboard</h1>
+      <div>
+        <button id="btnStart" class="btn">Start Stream</button>
+        <button id="btnStop" class="btn" disabled>Stop Stream</button>
+        <button id="btnLogout" class="btn">Logout</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Trust Score: <span id="trustScore" class="trust-score">0.00</span></h2>
+      <p>Status: <span id="status">Stopped</span></p>
+    </div>
+
+    <div class="card">
+      <h2>Trust Score Chart</h2>
+      <div class="chart-container">
+        <canvas id="trustChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Decisions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Trust</th>
+            <th>Result</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="decisionsBody">
+          <tr>
+            <td colspan="4" style="text-align: center;">No decisions yet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:5000/api";
+    let isStreaming = false;
+    let updateInterval;
+    let trustChart;
+
+    // Check if user is logged in
+    function checkAuth() {
+      const token = localStorage.getItem('authToken');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        alert('Not logged in. Redirecting to login page.');
+        window.location.href = '/login.html';
+        return false;
+      }
+      
+      console.log('User is logged in:', localStorage.getItem('username'));
+      return true;
+    }
+
+    // Initialize chart
+    function initChart() {
+      const ctx = document.getElementById('trustChart').getContext('2d');
+      trustChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Trust Score',
+            data: [],
+            borderColor: '#24d27b',
+            tension: 0.4,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 1 }
+          }
+        }
+      });
+    }
+
+    // Start streaming
+    function startStream() {
+      if (isStreaming) return;
+      
+      isStreaming = true;
+      document.getElementById('status').textContent = 'Streaming...';
+      document.getElementById('btnStart').disabled = true;
+      document.getElementById('btnStop').disabled = false;
+      
+      let counter = 0;
+      
+      updateInterval = setInterval(() => {
         if (!isStreaming) return;
         
         counter++;
         
-        // Update all sensor data
-        const wifiScore = updateWiFiData();
-        const audioScore = updateAudioData();
-        const watchScore = updateWatchData();
-        const driftScore = updateDriftData();
+        // Generate random trust score
+        const trustScore = Math.random();
+        document.getElementById('trustScore').textContent = trustScore.toFixed(2);
         
-        // Calculate trust score (weighted average)
-        const trustScore = (wifiScore * 0.3) + (audioScore * 0.3) + (watchScore * 0.3) - (driftScore * 0.3);
-        const finalTrustScore = Math.max(0, Math.min(1, trustScore));
-        
-        // Update trust score display
-        document.getElementById('trustScore').textContent = finalTrustScore.toFixed(2);
-        
-        // Update trust chart
-        const now = new Date();
-        const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
-        
-        if (trustChart.data.labels.length > 15) {
+        // Update chart
+        if (trustChart) {
+          const timeLabel = new Date().toLocaleTimeString();
+          trustChart.data.labels.push(timeLabel);
+          trustChart.data.datasets[0].data.push(trustScore);
+          
+          if (trustChart.data.labels.length > 15) {
             trustChart.data.labels.shift();
             trustChart.data.datasets[0].data.shift();
+          }
+          
+          trustChart.update();
         }
-        trustChart.data.labels.push(timeLabel);
-        trustChart.data.datasets[0].data.push(finalTrustScore);
-        trustChart.update('none');
         
-        // Make decision every 10 seconds (every 5th update)
+        // Make decision every 5 seconds
         if (counter % 5 === 0) {
-            let result, note;
-            if (finalTrustScore > 0.7) {
-                result = "ALLOW";
-                note = "Normal behavior pattern";
-            } else if (finalTrustScore > 0.4) {
-                result = "CHALLENGE";
-                note = "Additional verification required";
-            } else {
-                result = "BLOCK";
-                note = "Suspicious activity detected";
-            }
-            
-            // Add to decisions table
-            const tbody = document.getElementById('decisionsBody');
-            const row = document.createElement('tr');
-            const nowTime = new Date().toLocaleTimeString();
-            
-            row.innerHTML = `
-                <td>${nowTime}</td>
-                <td>${finalTrustScore.toFixed(2)}</td>
-                <td>${result}</td>
-                <td>${note}</td>
-            `;
-            
-            // Add to beginning of table
-            if (tbody.firstChild) {
-                tbody.insertBefore(row, tbody.firstChild);
-            } else {
-                tbody.appendChild(row);
-            }
-            
-            // Keep only last 10 decisions
-            while (tbody.children.length > 10) {
-                tbody.removeChild(tbody.lastChild);
-            }
-            
-            // Update histogram
-            updateHistogram(result);
-            
-            console.log(`Decision: ${result} (${finalTrustScore.toFixed(2)})`);
-            
-            // Send to backend (optional)
-            try {
-                fetch(`${API_BASE}/auth/decision`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: 1,
-                        trust: finalTrustScore,
-                        result: result,
-                        note: note
-                    })
-                });
-            } catch (error) {
-                console.log("Backend not available, continuing locally");
-            }
+          makeDecision(trustScore);
         }
         
-        console.log(`Update #${counter}: ${finalTrustScore.toFixed(2)}`);
-        
-    }, 2000); // Update every 2 seconds
-}
+      }, 1000);
+    }
 
-// Stop streaming
-function stopStream() {
-    console.log("⏹️ Stopping stream...");
-    isStreaming = false;
-    
-    // Update UI
-    const statusElement = document.getElementById('status');
-    statusElement.textContent = 'stopped';
-    statusElement.className = 'status';
-    
-    document.getElementById('btnStart').classList.remove('ghost');
-    document.getElementById('btnStop').classList.add('ghost');
-    
-    // Clear the update interval
-    if (updateInterval) {
+    // Stop streaming
+    function stopStream() {
+      isStreaming = false;
+      document.getElementById('status').textContent = 'Stopped';
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnStop').disabled = true;
+      
+      if (updateInterval) {
         clearInterval(updateInterval);
-        updateInterval = null;
+      }
     }
-}
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("🚀 DOM loaded, initializing...");
-    
-    // Check if Chart.js is available
-    if (typeof Chart === 'undefined') {
-        console.error("❌ Chart.js not loaded!");
-        return;
-    }
-    
-    // Initialize charts
-    initCharts();
-    
-    // Add event listeners to buttons
-    const startBtn = document.getElementById('btnStart');
-    const stopBtn = document.getElementById('btnStop');
-    
-    if (startBtn && stopBtn) {
-        startBtn.addEventListener('click', startStream);
-        stopBtn.addEventListener('click', stopStream);
-        console.log("✅ Button listeners added");
+    // Make decision
+    async function makeDecision(trustScore) {
+      const userId = localStorage.getItem('userId');
+      
+      try {
+        const response = await fetch(`${API_BASE}/auth/decision`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            trust: trustScore
+          })
+        });
         
-        // Set initial button states
-        stopBtn.classList.add('ghost');
-    } else {
-        console.error("❌ Buttons not found!");
+        const data = await response.json();
+        addDecisionToTable(trustScore, data.result, data.note);
+        
+      } catch (error) {
+        console.error('Decision error:', error);
+        // Fallback
+        let result, note;
+        if (trustScore > 0.7) {
+          result = "ALLOW";
+          note = "Normal behavior";
+        } else if (trustScore > 0.4) {
+          result = "CHALLENGE";
+          note = "Needs verification";
+        } else {
+          result = "BLOCK";
+          note = "Suspicious activity";
+        }
+        addDecisionToTable(trustScore, result, note);
+      }
     }
-    
-    console.log("✅ System ready - click 'Start Stream' to begin");
-});
-</script> -->
-     </main>
-</div>
-<script src="user/app.js"></script>
+
+    // Add decision to table
+    function addDecisionToTable(trust, result, note) {
+      const tbody = document.getElementById('decisionsBody');
+      
+      // Remove "no decisions" message
+      if (tbody.children.length === 1 && tbody.children[0].cells.length === 1) {
+        tbody.innerHTML = '';
+      }
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${new Date().toLocaleTimeString()}</td>
+        <td>${trust.toFixed(2)}</td>
+        <td>${result}</td>
+        <td>${note}</td>
+      `;
+      
+      tbody.insertBefore(row, tbody.firstChild);
+      
+      // Keep only last 10 decisions
+      if (tbody.children.length > 10) {
+        tbody.removeChild(tbody.lastChild);
+      }
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      window.location.href = '/login.html';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Dashboard loaded');
+      
+      if (!checkAuth()) {
+        return;
+      }
+      
+      initChart();
+      
+      document.getElementById('btnStart').addEventListener('click', startStream);
+      document.getElementById('btnStop').addEventListener('click', stopStream);
+      document.getElementById('btnLogout').addEventListener('click', logout);
+    });
+  </script>
 </body>
-</html> 
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/user/user.css">
+  <title>Continuous 2FA Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+
+    <div class="controls">
+      <input id="search" class="search" placeholder="Search events…"/>
+      <button id="btnStart" class="btn">Start Stream</button>
+      <button id="btnStop" class="btn ghost">Stop Stream</button>
+       <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+      <div class="user-info">
+        <span id="userWelcome">Welcome, User</span>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Navigation</h3>
+      <div class="small">Dashboard · Streams · Decisions · Settings</div>
+    </div>
+    <div class="section">
+      <h3>Sampling</h3>
+      <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
+      <div class="small">Audio: <span id="cfgAudioInt">300s</span></div>
+      <div class="small">Watch: <span id="cfgWatchInt">30s</span></div>
+    </div>
+    <div class="section">
+      <h3>Thresholds</h3>
+      <div class="small">Min Trust: <span id="cfgTrust">0.65</span></div>
+      <div class="small">Watch Proximity (m): <span id="cfgProx">3.0</span></div>
+    </div>
+    <div class="section">
+      <h3>Session</h3>
+      <div class="small">User: <b id="user">Loading...</b></div>
+      <div class="small">Device: <b id="device">Loading...</b></div>
+      <div class="small">Status: <span id="status" class="status">stopped</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="grid cols-3">
+      <div class="card">
+        <h3>Trust Score</h3>
+        <div class="kpi">
+          <span class="dot" style="background:#24d27b;"></span>
+          <div class="big" id="trustScore">0.00</div>
+        </div>
+        <div class="small">Real-time authentication confidence</div>
+        <div class="fixed-chart">
+          <canvas id="trustChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Wi‑Fi RSSI (Top 5 APs)</h3>
+        <div class="small">Lower is weaker. Stable fingerprints → higher confidence.</div>
+        <div class="fixed-chart">
+          <canvas id="wifiChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Audio MFCC Entropy</h3>
+        <div class="small">Ambient sound pattern analysis</div>
+        <div class="fixed-chart">
+          <canvas id="audioChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Decisions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Trust</th>
+            <th>Result</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="decisionsBody">
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--muted);">No decisions yet. Start the stream to begin monitoring.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Live Stream Analytics</h3>
+      <div class="small">Real-time behavioral biometric monitoring</div>
+      <hr/>
+      <div class="grid cols-3">
+        <div>
+          <div class="small">Watch Proximity (m)</div>
+          <div class="fixed-chart">
+            <canvas id="watchChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Feature Drift Detection</div>
+          <div class="fixed-chart">
+            <canvas id="driftChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="small">Decision Distribution</div>
+          <div class="fixed-chart">
+            <canvas id="histChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Continuous 2FA Authentication System • Real-time Behavioral Biometrics
+    </footer>
+  </main>
+</div>
+
+<script src="/user/app.js"></script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+
 from backend.utils.db import get_db
 
 def save_decision(user_id, trust, result, note=""):
@@ -78,10 +79,20 @@ def get_user_decisions(user_id):
         rows = cur.fetchall()
         decisions = []
         for row in rows:
+            # Safely handle NULL trust values
+            trust_value = row[1]
+            if trust_value is None:
+                trust_value = 0.0  # Default value for NULL
+            else:
+                try:
+                    trust_value = float(trust_value)
+                except (ValueError, TypeError):
+                    trust_value = 0.0  # Default for invalid values
+            
             decisions.append({
                 "id": row[0],
-                "trust": float(row[1]),
-                "result": row[2],
+                "trust": trust_value,
+                "result": row[2] or "UNKNOWN",
                 "note": row[3] or "",
                 "timestamp": row[4]
             })
@@ -133,12 +144,22 @@ def get_all_decisions(limit=50):
         rows = cur.fetchall()
         decisions = []
         for row in rows:
+            # Safely handle NULL trust values
+            trust_value = row[3]
+            if trust_value is None:
+                trust_value = 0.0  # Default value for NULL
+            else:
+                try:
+                    trust_value = float(trust_value)
+                except (ValueError, TypeError):
+                    trust_value = 0.0  # Default for invalid values
+            
             decisions.append({
                 "id": row[0],
                 "user_id": row[1],
-                "username": row[2],
-                "trust": float(row[3]),
-                "result": row[4],
+                "username": row[2] or "Unknown",
+                "trust": trust_value,
+                "result": row[4] or "UNKNOWN",
                 "note": row[5] or "",
                 "timestamp": row[6]
             })
@@ -207,9 +228,12 @@ def get_decision_stats(user_id=None):
         row = cur.fetchone()
         
         if row and row[0] is not None:
+            # Safely handle NULL average trust
+            avg_trust = row[1] if row[1] is not None else 0.0
+            
             stats = {
                 "total_decisions": row[0] or 0,
-                "avg_trust": round(float(row[1] or 0), 2),
+                "avg_trust": round(float(avg_trust), 2),
                 "allow_count": row[2] or 0,
                 "challenge_count": row[3] or 0,
                 "block_count": row[4] or 0
@@ -238,9 +262,9 @@ def get_decision_stats(user_id=None):
         cur.close()
         conn.close()
 
-# Debug function to check schema
-def debug_schema():
-    """Debug function to check the actual table schema"""
+# Debug function to check for NULL values
+def debug_null_trust_values():
+    """Check for NULL trust values in the database"""
     conn = get_db()
     if not conn: 
         print("❌ Database connection failed")
@@ -248,23 +272,29 @@ def debug_schema():
     
     cur = conn.cursor()
     try:
-        # Check decisions table
+        # Check for NULL trust values
         cur.execute("""
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'decisions' 
-            ORDER BY ordinal_position;
+            SELECT COUNT(*) as total_decisions,
+                   COUNT(trust) as non_null_trust,
+                   COUNT(*) - COUNT(trust) as null_trust
+            FROM decisions
         """)
-        columns = cur.fetchall()
-        print("📊 Decisions table columns:")
-        for col in columns:
-            print(f"  - {col[0]} ({col[1]})")
-            
+        stats = cur.fetchone()
+        print(f"📊 Trust value stats: Total={stats[0]}, Non-NULL={stats[1]}, NULL={stats[2]}")   # type: ignore
+        
+        # Show some examples of NULL trust values
+        if stats[2] > 0:  # type: ignore
+            cur.execute("SELECT id, user_id, result, note FROM decisions WHERE trust IS NULL LIMIT 5")
+            null_rows = cur.fetchall()
+            print("📝 Sample NULL trust decisions:")
+            for row in null_rows:
+                print(f"  - ID: {row[0]}, User: {row[1]}, Result: {row[2]}, Note: {row[3]}")
+                
     except Exception as e:
-        print(f"❌ Error checking schema: {e}")
+        print(f"❌ Error checking NULL values: {e}")
     finally:
         cur.close()
         conn.close()
 
-# Uncomment the line below to debug your schema when the module loads
-# debug_schema()
+# Uncomment to debug NULL values when the module loads
+debug_null_trust_values()

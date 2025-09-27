@@ -34,3 +34,4 @@ python backend/app.py                  # run backend at http://127.0.0.1:5000
 - GET `/api/metrics/`
 - GET `/api/decisions/?limit=12`
 "# college_project" 
+python -m backend.app

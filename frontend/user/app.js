@@ -1,386 +1,840 @@
 
-// // // ---------------- Config ----------------
-// // const CFG = {
-// //   wifiIntervalSec: 60,
-// //   audioIntervalSec: 300,
-// //   watchIntervalSec: 30,
-// //   trustMin: 0.65,
-// //   watchProxMaxMeters: 3.0
-// // };
+// // // const API_BASE = "http://127.0.0.1:5000/api";
+// // // let isStreaming = false;
+// // // let updateInterval;
+// // // let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
 
-// // // --------- Utility ---------
-// // const $ = (sel)=>document.querySelector(sel);
-// // function fmtTime(t){ return new Date(t).toLocaleTimeString(); }
-// // function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+// // // console.log("✅ app.js is loaded!");
 
-// // // Simple sparkline-like chart renderer
-// // function renderLineChart(canvas, data, opts = {}){
-// //   const ctx = canvas.getContext('2d');
-// //   const w = canvas.width = canvas.clientWidth;
-// //   const h = canvas.height = canvas.clientHeight;
-// //   ctx.clearRect(0,0,w,h);
-// //   const pad = 20;
-// //   const X = (i)=> pad + (w-2*pad) * (i/(data.length-1||1));
-// //   const min = Math.min(...data), max = Math.max(...data);
-// //   const Y = (v)=> h-pad - (h-2*pad) * ((v-min)/((max-min)||1));
-// //   ctx.lineWidth = 2;
-// //   ctx.beginPath();
-// //   data.forEach((v,i)=>{
-// //     const x = X(i), y = Y(v);
-// //     if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-// //   });
-// //   ctx.strokeStyle = "#5b8cff";
-// //   ctx.stroke();
-// //   // points
-// //   ctx.fillStyle = "#9ab7ff";
-// //   data.forEach((v,i)=> ctx.fillRect(X(i)-2, Y(v)-2, 4, 4));
-// // }
+// // // // Initialize all charts
+// // // function initCharts() {
+// // //     console.log("📊 Initializing charts...");
+    
+// // //     // Trust Score Chart
+// // //     trustChart = new Chart(document.getElementById('trustChart'), {
+// // //         type: 'line',
+// // //         data: {
+// // //             labels: [],
+// // //             datasets: [{
+// // //                 label: 'Trust Score',
+// // //                 data: [],
+// // //                 borderColor: '#24d27b',
+// // //                 tension: 0.4,
+// // //                 fill: false,
+// // //                 pointRadius: 3,
+// // //                 borderWidth: 2
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: {
+// // //                     beginAtZero: true,
+// // //                     max: 1,
+// // //                     grid: { display: false }
+// // //                 },
+// // //                 x: { display: false }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
 
-// // function renderBars(canvas, buckets){
-// //   const ctx = canvas.getContext('2d');
-// //   const w = canvas.width = canvas.clientWidth;
-// //   const h = canvas.height = canvas.clientHeight;
-// //   ctx.clearRect(0,0,w,h);
-// //   const pad = 24;
-// //   const bw = (w-2*pad)/buckets.length;
-// //   const max = Math.max(...buckets.map(b=>b.v),1);
-// //   buckets.forEach((b,i)=>{
-// //     const x = pad + i*bw + 6;
-// //     const bh = (h-2*pad) * (b.v/max);
-// //     ctx.fillStyle = "#5b8cff";
-// //     ctx.fillRect(x, h-pad-bh, bw-12, bh);
-// //     ctx.fillStyle = "#c7d6f5";
-// //     ctx.fillText(b.k, x, h-8);
-// //   });
-// // }
+// // //     // WiFi RSSI Chart
+// // //     wifiChart = new Chart(document.getElementById('wifiChart'), {
+// // //         type: 'bar',
+// // //         data: {
+// // //             labels: ['AP-1', 'AP-2', 'AP-3', 'AP-4', 'AP-5'],
+// // //             datasets: [{
+// // //                 data: [-45, -52, -60, -65, -70],
+// // //                 backgroundColor: '#4f79bc',
+// // //                 borderWidth: 0
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: { 
+// // //                     reverse: true,
+// // //                     min: -90,
+// // //                     max: -30,
+// // //                     grid: { display: false }
+// // //                 }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
 
-// // // -------------- Data Fetch (mock) --------------
-// // // BACKEND INTEGRATION: replace these with real endpoints.
-// // async function pullLatestMetrics(){
-// //   const wf = await fetch('sample_data/wifi_scans.json').then(r=>r.json());
-// //   const au = await fetch('sample_data/audio_stats.json').then(r=>r.json());
-// //   const dc = await fetch('sample_data/decisions.json').then(r=>r.json());
-// //   return {wf, au, dc};
-// // }
+// // //     // Audio MFCC Chart
+// // //     audioChart = new Chart(document.getElementById('audioChart'), {
+// // //         type: 'line',
+// // //         data: {
+// // //             labels: Array.from({length: 13}, (_, i) => `M${i+1}`),
+// // //             datasets: [{
+// // //                 data: Array(13).fill(0).map(() => Math.random() * 2 + 1),
+// // //                 borderColor: '#bc4f7d',
+// // //                 tension: 0.4,
+// // //                 fill: false,
+// // //                 borderWidth: 2
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: { 
+// // //                     min: 0,
+// // //                     max: 4,
+// // //                     grid: { display: false }
+// // //                 },
+// // //                 x: { grid: { display: false } }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
 
-// // async function pullRecentDecisions(){ return (await fetch('sample_data/decisions.json').then(r=>r.json())).items; }
-// // async function pullStreamConfig(){ return CFG; }
+// // //     // Watch Proximity Chart
+// // //     watchChart = new Chart(document.getElementById('watchChart'), {
+// // //         type: 'line',
+// // //         data: {
+// // //             labels: [],
+// // //             datasets: [{
+// // //                 label: 'Distance (m)',
+// // //                 data: [],
+// // //                 borderColor: '#4fbca9',
+// // //                 tension: 0.4,
+// // //                 fill: false,
+// // //                 pointRadius: 2,
+// // //                 borderWidth: 2
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: {
+// // //                     min: 0,
+// // //                     max: 10,
+// // //                     grid: { display: false }
+// // //                 },
+// // //                 x: { display: false }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
 
-// // // -------------- Simulators --------------
-// // let simTimer=null;
-// // let trustSeries=[], wifiSeries=[], audioSeries=[], watchSeries=[], driftSeries=[], hist={safe:0, anomalous:0};
+// // //     // Feature Drift Chart
+// // //     driftChart = new Chart(document.getElementById('driftChart'), {
+// // //         type: 'line',
+// // //         data: {
+// // //             labels: [],
+// // //             datasets: [{
+// // //                 label: 'Drift Score',
+// // //                 data: [],
+// // //                 borderColor: '#d27b24',
+// // //                 tension: 0.4,
+// // //                 fill: false,
+// // //                 pointRadius: 2,
+// // //                 borderWidth: 2
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: {
+// // //                     min: 0,
+// // //                     max: 1,
+// // //                     grid: { display: false }
+// // //                 },
+// // //                 x: { display: false }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
 
-// // function simulateTick(){
-// //   // Wi‑Fi fingerprint stability ~ RSSI average (higher magnitude negative)
-// //   const rssi = -50 - Math.random()*25;
-// //   wifiSeries.push(rssi); if(wifiSeries.length>40) wifiSeries.shift();
+// // //     // Decision Histogram
+// // //     histChart = new Chart(document.getElementById('histChart'), {
+// // //         type: 'bar',
+// // //         data: {
+// // //             labels: ['ALLOW', 'CHALLENGE', 'BLOCK'],
+// // //             datasets: [{
+// // //                 data: [0, 0, 0],
+// // //                 backgroundColor: ['#24d27b', '#d2b624', '#d22424'],
+// // //                 borderWidth: 0
+// // //             }]
+// // //         },
+// // //         options: {
+// // //             responsive: true,
+// // //             maintainAspectRatio: false,
+// // //             scales: {
+// // //                 y: { beginAtZero: true, grid: { display: false } },
+// // //                 x: { grid: { display: false } }
+// // //             },
+// // //             plugins: { legend: { display: false } }
+// // //         }
+// // //     });
+    
+// // //     console.log("✅ Charts initialized successfully");
+// // // }
 
-// //   // Audio MFCC entropy [0.4..0.9]
-// //   const entropy = 0.5 + Math.random()*0.5 + (Math.random()<0.1?0.15:0);
-// //   audioSeries.push(entropy); if(audioSeries.length>40) audioSeries.shift();
+// // // // Update WiFi data
+// // // function updateWiFiData() {
+// // //     const newData = wifiChart.data.datasets[0].data.map(value => {
+// // //         const change = (Math.random() - 0.5) * 5;
+// // //         return Math.max(-90, Math.min(-30, value + change));
+// // //     });
+// // //     wifiChart.data.datasets[0].data = newData;
+// // //     wifiChart.update();
+    
+// // //     return Math.random() * 0.2 + 0.7; // Return WiFi stability score
+// // // }
 
-// //   // Watch proximity in meters
-// //   const prox = Math.max(0, (Math.random()*4) + (Math.random()<0.2?2:0));
-// //   watchSeries.push(prox); if(watchSeries.length>40) watchSeries.shift();
+// // // // Update Audio data
+// // // function updateAudioData() {
+// // //     const newData = audioChart.data.datasets[0].data.map(value => {
+// // //         const change = (Math.random() - 0.5) * 0.3;
+// // //         return Math.max(0.5, Math.min(3.5, value + change));
+// // //     });
+// // //     audioChart.data.datasets[0].data = newData;
+// // //     audioChart.update();
+    
+// // //     return Math.random() * 0.2 + 0.6; // Return audio consistency score
+// // // }
 
-// //   // Simple drift: normalized variance of the three inputs
-// //   const drift = (Math.abs(rssi+60)/25 + Math.abs(entropy-0.6)/0.4 + Math.abs(prox-1.5)/3.5)/3;
-// //   driftSeries.push(drift); if(driftSeries.length>40) driftSeries.shift();
+// // // // Update Watch data
+// // // function updateWatchData() {
+// // //     const distance = Math.random() * 8 + 1; // 1-9 meters
+// // //     const timestamp = new Date().toLocaleTimeString();
+    
+// // //     // Update watch chart
+// // //     if (watchChart.data.labels.length > 8) {
+// // //         watchChart.data.labels.shift();
+// // //         watchChart.data.datasets[0].data.shift();
+// // //     }
+// // //     watchChart.data.labels.push(timestamp);
+// // //     watchChart.data.datasets[0].data.push(distance);
+// // //     watchChart.update();
+    
+// // //     return Math.max(0, 1 - (distance / 10)); // Return proximity score
+// // // }
 
-// //   // Trust: inverse of drift with floor
-// //   let trust = clamp(1 - drift, 0, 1);
-// //   if(prox > CFG.watchProxMaxMeters) trust -= 0.3;
-// //   trust = clamp(trust, 0, 1);
-// //   trustSeries.push(trust); if(trustSeries.length>60) trustSeries.shift();
+// // // // Update Drift data
+// // // function updateDriftData() {
+// // //     const drift = Math.random() * 0.3;
+// // //     const timestamp = new Date().toLocaleTimeString();
+    
+// // //     // Update drift chart
+// // //     if (driftChart.data.labels.length > 8) {
+// // //         driftChart.data.labels.shift();
+// // //         driftChart.data.datasets[0].data.shift();
+// // //     }
+// // //     driftChart.data.labels.push(timestamp);
+// // //     driftChart.data.datasets[0].data.push(drift);
+// // //     driftChart.update();
+    
+// // //     return drift; // Return drift score
+// // // }
 
-// //   const result = trust >= CFG.trustMin ? "safe" : "anomalous";
-// //   hist[result]++;
+// // // // Update histogram
+// // // function updateHistogram(decision) {
+// // //     const index = ['ALLOW', 'CHALLENGE', 'BLOCK'].indexOf(decision);
+// // //     if (index !== -1) {
+// // //         histChart.data.datasets[0].data[index]++;
+// // //         histChart.update();
+// // //     }
+// // // }
 
-// //   // Render
-// //   renderLineChart($('#trustChart'), trustSeries);
-// //   renderLineChart($('#wifiChart'), wifiSeries);
-// //   renderLineChart($('#audioChart'), audioSeries);
-// //   renderLineChart($('#watchChart'), watchSeries);
-// //   renderLineChart($('#driftChart'), driftSeries);
-// //   renderBars($('#histChart'), [{k:'safe', v:hist.safe},{k:'anom', v:hist.anomalous}]);
+// // // // Make authentication decision
+// // // async function makeDecision(trustScore) {
+// // //     try {
+// // //         const response = await fetch(`${API_BASE}/auth/decision`, {
+// // //             method: 'POST',
+// // //             headers: {
+// // //                 'Content-Type': 'application/json',
+// // //             },
+// // //             body: JSON.stringify({
+// // //                 user_id: 1, // Using user ID 1 for demo
+// // //                 trust: trustScore
+// // //             })
+// // //         });
+        
+// // //         if (!response.ok) {
+// // //             throw new Error(`HTTP error! status: ${response.status}`);
+// // //         }
+        
+// // //         const data = await response.json();
+        
+// // //         // Update decisions table
+// // //         loadDecisions();
+        
+// // //         // Update histogram
+// // //         updateHistogram(data.result);
+        
+// // //         console.log(`✅ Decision saved: ${data.result}`);
+// // //         return data;
+        
+// // //     } catch (error) {
+// // //         console.error('❌ Decision error:', error);
+// // //         // Fallback: Create decision locally if backend fails
+// // //         let result, note;
+// // //         if (trustScore > 0.7) {
+// // //             result = "ALLOW";
+// // //             note = "Normal behavior pattern";
+// // //         } else if (trustScore > 0.4) {
+// // //             result = "CHALLENGE";
+// // //             note = "Additional verification required";
+// // //         } else {
+// // //             result = "BLOCK";
+// // //             note = "Suspicious activity detected";
+// // //         }
+        
+// // //         // Update histogram locally
+// // //         updateHistogram(result);
+        
+// // //         return { result, note, trust: trustScore };
+// // //     }
+// // // }
+// // // // Start streaming trust data
+// // // function startStream() {
+// // //     if (isStreaming) return;
+    
+// // //     console.log("▶️ Starting stream...");
+// // //     isStreaming = true;
+    
+// // //     // Update UI
+// // //     const statusElement = document.getElementById('status');
+// // //     statusElement.textContent = 'active';
+// // //     statusElement.className = 'status safe';
+    
+// // //     document.getElementById('btnStart').classList.add('ghost');
+// // //     document.getElementById('btnStop').classList.remove('ghost');
+    
+// // //     // Clear any existing interval
+// // //     if (updateInterval) {
+// // //         clearInterval(updateInterval);
+// // //     }
+    
+// // //     let counter = 0;
+    
+// // //     // Start data generation every 2 seconds
+// // //     updateInterval = setInterval(() => {
+// // //         if (!isStreaming) return;
+        
+// // //         counter++;
+        
+// // //         // Update all sensor data
+// // //         const wifiScore = updateWiFiData();
+// // //         const audioScore = updateAudioData();
+// // //         const watchScore = updateWatchData();
+// // //         const driftScore = updateDriftData();
+        
+// // //         // Calculate trust score (weighted average)
+// // //         const trustScore = (wifiScore * 0.3) + (audioScore * 0.3) + (watchScore * 0.3) - (driftScore * 0.3);
+// // //         const finalTrustScore = Math.max(0, Math.min(1, trustScore));
+        
+// // //         // Update trust score display
+// // //         document.getElementById('trustScore').textContent = finalTrustScore.toFixed(2);
+        
+// // //         // Update trust chart
+// // //         const now = new Date();
+// // //         const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
+        
+// // //         if (trustChart.data.labels.length > 15) {
+// // //             trustChart.data.labels.shift();
+// // //             trustChart.data.datasets[0].data.shift();
+// // //         }
+// // //         trustChart.data.labels.push(timeLabel);
+// // //         trustChart.data.datasets[0].data.push(finalTrustScore);
+// // //         trustChart.update('none');
+        
+// // //         // Make decision every 10 seconds (every 5th update)
+// // //         if (counter % 5 === 0) {
+// // //             let result, note;
+// // //             if (finalTrustScore > 0.7) {
+// // //                 result = "ALLOW";
+// // //                 note = "Normal behavior pattern";
+// // //             } else if (finalTrustScore > 0.4) {
+// // //                 result = "CHALLENGE";
+// // //                 note = "Additional verification required";
+// // //             } else {
+// // //                 result = "BLOCK";
+// // //                 note = "Suspicious activity detected";
+// // //             }
+            
+// // //             // Add to decisions table
+// // //             const tbody = document.getElementById('decisionsBody');
+// // //             const row = document.createElement('tr');
+// // //             const nowTime = new Date().toLocaleTimeString();
+            
+// // //             row.innerHTML = `
+// // //                 <td>${nowTime}</td>
+// // //                 <td>${finalTrustScore.toFixed(2)}</td>
+// // //                 <td>${result}</td>
+// // //                 <td>${note}</td>
+// // //             `;
+            
+// // //             // Add to beginning of table
+// // //             if (tbody.firstChild) {
+// // //                 tbody.insertBefore(row, tbody.firstChild);
+// // //             } else {
+// // //                 tbody.appendChild(row);
+// // //             }
+            
+// // //             // Keep only last 10 decisions
+// // //             while (tbody.children.length > 10) {
+// // //                 tbody.removeChild(tbody.lastChild);
+// // //             }
+            
+// // //             // Update histogram
+// // //             updateHistogram(result);
+            
+// // //             console.log(`Decision: ${result} (${finalTrustScore.toFixed(2)})`);
+            
+// // //             // Send to backend (optional)
+// // //             try {
+// // //                 fetch(`${API_BASE}/auth/decision`, {
+// // //                     method: 'POST',
+// // //                     headers: { 'Content-Type': 'application/json' },
+// // //                     body: JSON.stringify({
+// // //                         user_id: 1,
+// // //                         trust: finalTrustScore,
+// // //                         result: result,
+// // //                         note: note
+// // //                     })
+// // //                 });
+// // //             } catch (error) {
+// // //                 console.log("Backend not available, continuing locally");
+// // //             }
+// // //         }
+        
+// // //         console.log(`Update #${counter}: ${finalTrustScore.toFixed(2)}`);
+        
+// // //     }, 2000); // Update every 2 seconds
+// // // }
 
-// //   $('#trustScore').textContent = trust.toFixed(2);
-// //   $('#status').textContent = result;
-// //   $('#status').className = 'status ' + result;
+// // // // Stop streaming
+// // // function stopStream() {
+// // //     console.log("⏹️ Stopping stream...");
+// // //     isStreaming = false;
+    
+// // //     // Update UI
+// // //     const statusElement = document.getElementById('status');
+// // //     statusElement.textContent = 'stopped';
+// // //     statusElement.className = 'status';
+    
+// // //     document.getElementById('btnStart').classList.remove('ghost');
+// // //     document.getElementById('btnStop').classList.add('ghost');
+    
+// // //     // Clear the update interval
+// // //     if (updateInterval) {
+// // //         clearInterval(updateInterval);
+// // //         updateInterval = null;
+// // //     }
+// // // }
 
-// //   // table row
-// //   const row = document.createElement('tr');
-// //   const now = new Date().toLocaleTimeString();
-// //   row.innerHTML = `<td>${now}</td><td>${trust.toFixed(2)}</td><td>${result}</td><td>${prox>CFG.watchProxMaxMeters?'Watch far':'OK'}</td>`;
-// //   const tbody = $('#decisionsBody');
-// //   tbody.prepend(row);
-// //   while(tbody.children.length>12) tbody.removeChild(tbody.lastChild);
-// // }
 
-// // function startSim(){
-// //   if(simTimer) return;
-// //   $('#status').textContent = 'running';
-// //   simTimer = setInterval(simulateTick, 1200);
-// // }
-// // function stopSim(){
-// //   if(simTimer){ clearInterval(simTimer); simTimer=null; }
-// //   $('#status').textContent = 'stopped';
-// // }
 
-// // // -------------- Init --------------
-// // (async function init(){
-// //   const cfg = await pullStreamConfig();
-// //   $('#cfgWifiInt').textContent = cfg.wifiIntervalSec+'s';
-// //   $('#cfgAudioInt').textContent = cfg.audioIntervalSec+'s';
-// //   $('#cfgWatchInt').textContent = cfg.watchIntervalSec+'s';
-// //   $('#cfgTrust').textContent = cfg.trustMin.toFixed(2);
-// //   $('#cfgProx').textContent = cfg.watchProxMaxMeters.toFixed(1);
+// // // // Initialize when page loads
+// // // document.addEventListener('DOMContentLoaded', function() {
+// // //     console.log("🚀 DOM loaded, initializing...");
+    
+// // //     // Check if Chart.js is available
+// // //     if (typeof Chart === 'undefined') {
+// // //         console.error("❌ Chart.js not loaded! Add: <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>");
+// // //         return;
+// // //     }
+    
+// // //     // Initialize charts
+// // //     initCharts();
+    
+// // //     // Add event listeners to buttons
+// // //     const startBtn = document.getElementById('btnStart');
+// // //     const stopBtn = document.getElementById('btnStop');
+    
+// // //     if (startBtn && stopBtn) {
+// // //         startBtn.addEventListener('click', startStream);
+// // //         stopBtn.addEventListener('click', stopStream);
+// // //         console.log("✅ Button listeners added");
+        
+// // //         // Set initial button states
+// // //         stopBtn.classList.add('ghost');
+// // //     } else {
+// // //         console.error("❌ Buttons not found!");
+// // //     }
+    
+// // //     console.log("✅ System ready - click 'Start Stream' to begin");
+// // // });
 
-// //   // load seed tables
-// //   const items = await pullRecentDecisions();
-// //   const tbody = $('#decisionsBody');
-// //   items.forEach(x=>{
-// //     const tr = document.createElement('tr');
-// //     tr.innerHTML = `<td>${fmtTime(x.timestamp)}</td><td>${x.trust.toFixed(2)}</td><td>${x.result}</td><td>${x.note||''}</td>`;
-// //     tbody.appendChild(tr);
-// //   });
-
-// //   $('#btnStart').addEventListener('click', startSim);
-// //   $('#btnStop').addEventListener('click', stopSim);
-// // })();
-
-// // const API_BASE = "http://192.168.1.3:5000/api";
-
-// // // Load user metrics
-// // async function loadMetrics() {
-// //   try {
-// //     const res = await fetch(`${API_BASE}/user/metrics/1`); // Example: user_id = 1
-// //     if (!res.ok) throw new Error("Failed to fetch metrics");
-// //     const data = await res.json();
-
-// //     document.getElementById("wifi").innerText = `Wi-Fi RSSI: ${data.wifi_rssi}`;
-// //     document.getElementById("audio").innerText = `Audio Entropy: ${data.audio_entropy}`;
-// //     document.getElementById("watch").innerText = `Watch Proximity: ${data.watch_proximity}`;
-// //   } catch (err) {
-// //     console.error("Error fetching metrics:", err);
-// //   }
-// // }
-
-// // // Load user decisions
-// // async function loadDecisions() {
-// //   try {
-// //     const res = await fetch(`${API_BASE}/user/decisions/1`); // Example: user_id = 1
-// //     if (!res.ok) throw new Error("Failed to fetch decisions");
-// //     const data = await res.json();
-
-// //     document.getElementById("decision").innerText =
-// //       `Access: ${data.decision} (Trust Score: ${data.trust_score})`;
-// //   } catch (err) {
-// //     console.error("Error fetching decisions:", err);
-// //   }
-// // }
-
-// // // Refresh dashboard every 5s
-// // setInterval(() => {
-// //   loadMetrics();
-// //   loadDecisions();
-// // }, 5000);
-
-// // // Run once on load
-// // loadMetrics();
-// // loadDecisions();
-// // ---------------- Config ----------------
 // // const API_BASE = "http://127.0.0.1:5000/api";
-// // const CFG = {
-// //   wifiIntervalSec: 60,
-// //   audioIntervalSec: 300,
-// //   watchIntervalSec: 30,
-// //   trustMin: 0.65,
-// //   watchProxMaxMeters: 3.0
-// // };
+// // let isStreaming = false;
+// // let updateInterval;
+// // let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
+// // let currentUser = null;
 
-// // // --------- Utility ---------
-// // const $ = (sel)=>document.querySelector(sel);
-// // function fmtTime(t){ return new Date(t).toLocaleTimeString(); }
-// // function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
 
-// // // Chart renderers (same as before)
-// // function renderLineChart(canvas, data, opts = {}) { const ctx = canvas.getContext('2d');
-// //   const w = canvas.width = canvas.clientWidth;
-// //   const h = canvas.height = canvas.clientHeight;
-// //   ctx.clearRect(0,0,w,h);
-// //   const pad = 20;
-// //   const X = (i)=> pad + (w-2*pad) * (i/(data.length-1||1));
-// //   const min = Math.min(...data), max = Math.max(...data);
-// //   const Y = (v)=> h-pad - (h-2*pad) * ((v-min)/((max-min)||1));
-// //   ctx.lineWidth = 2;
-// //   ctx.beginPath();
-// //   data.forEach((v,i)=>{
-// //     const x = X(i), y = Y(v);
-// //     if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-// //   });
-// //   ctx.strokeStyle = "#5b8cff";
-// //   ctx.stroke();
-// //   // points
-// //   ctx.fillStyle = "#9ab7ff";
-// //   data.forEach((v,i)=> ctx.fillRect(X(i)-2, Y(v)-2, 4, 4));
-// // }
-// // function renderBars(canvas, buckets) { 
-// //   const ctx = canvas.getContext('2d');
-// //   const w = canvas.width = canvas.clientWidth;
-// //   const h = canvas.height = canvas.clientHeight;
-// //   ctx.clearRect(0,0,w,h);
-// //   const pad = 24;
-// //   const bw = (w-2*pad)/buckets.length;
-// //   const max = Math.max(...buckets.map(b=>b.v),1);
-// //   buckets.forEach((b,i)=>{
-// //     const x = pad + i*bw + 6;
-// //     const bh = (h-2*pad) * (b.v/max);
-// //     ctx.fillStyle = "#5b8cff";
-// //     ctx.fillRect(x, h-pad-bh, bw-12, bh);
-// //     ctx.fillStyle = "#c7d6f5";
-// //     ctx.fillText(b.k, x, h-8);
-// //   });
+// // // Debug authentication status
+// // console.log('=== AUTHENTICATION DEBUG ===');
+// // console.log('Token exists:', !!localStorage.getItem('authToken'));
+// // console.log('User ID:', localStorage.getItem('userId'));
+// // console.log('Username:', localStorage.getItem('username'));
+// // console.log('Current URL:', window.location.href);
+// // console.log('============================');
+
+
+// // // Check authentication and redirect if not logged in
+// // function checkAuth() {
+// //     const token = localStorage.getItem('authToken');
+// //     const userId = localStorage.getItem('userId');
+    
+// //     if (!token || !userId) {
+// //         console.log('❌ Not authenticated, redirecting to login');
+// //         window.location.href = '/login.html';
+// //         return false;
+// //     }
+    
+// //     console.log('✅ Authentication check passed');
+// //     return true;
 // // }
 
-// // // -------------- Backend Data Fetch --------------
-// // async function pullLatestMetrics() {
-// //   try {
-// //     const res = await fetch(`${API_BASE}/user/metrics/1`);
-// //     if (!res.ok) throw new Error("Failed to fetch metrics");
-// //     return await res.json();
-// //   } catch (e) {
-// //     console.error("Metrics fetch failed:", e);
-// //     return null;
-// //   }
+// // // Get user profile
+// // async function getUserProfile() {
+// //     const token = localStorage.getItem('authToken');
+    
+// //     try {
+// //         const response = await fetch(`${API_BASE}/auth/profile`, {
+// //             headers: {
+// //                 'Authorization': `Bearer ${token}`
+// //             }
+// //         });
+        
+// //         if (response.ok) {
+// //             currentUser = await response.json();
+// //             console.log('✅ User profile loaded:', currentUser.username);
+// //             updateUserInterface();
+// //             return true;
+// //         } else {
+// //             console.error('❌ Failed to get user profile');
+// //             // Clear invalid token and redirect to login
+// //             localStorage.removeItem('authToken');
+// //             localStorage.removeItem('userId');
+// //             localStorage.removeItem('username');
+// //             window.location.href = '/login.html';
+// //             return false;
+// //         }
+// //     } catch (error) {
+// //         console.error('❌ Error getting profile:', error);
+// //         localStorage.removeItem('authToken');
+// //         localStorage.removeItem('userId');
+// //         localStorage.removeItem('username');
+// //         window.location.href = '/login.html';
+// //         return false;
+// //     }
 // // }
 
-// // // Fetch decisions for a given user from backend
-// // async function pullRecentDecisions(userId = 2) {   // default user_id=2 (Maha)
-// //   try {
-// //     const res = await fetch(`/api/user/decisions/${userId}`);
-// //     const data = await res.json();
-
-// //     // If backend returns {items: [...]}, normalize
-// //     if (data.items) return data.items;
-
-// //     // Otherwise backend returned raw rows
-// //     return data.map(d => ({
-// //       timestamp: d.created_at || d.timestamp,
-// //       trust: d.trust_score || d.trust,
-// //       result: d.result,
-// //       note: d.note
-// //     }));
-// //   } catch (err) {
-// //     console.error("Error fetching decisions:", err);
-// //     return [];
-// //   }
+// // // Update UI with user info
+// // function updateUserInterface() {
+// //     if (currentUser) {
+// //         // Update user info in the sidebar
+// //         const userElement = document.getElementById('user');
+// //         const deviceElement = document.getElementById('device');
+        
+// //         if (userElement) userElement.textContent = currentUser.username;
+// //         if (deviceElement) deviceElement.textContent = currentUser.device || 'Unknown Device';
+        
+// //         console.log('✅ UI updated with user info');
+// //     }
 // // }
 
-// // async function pullUserDecision() {
-// //   try {
-// //     const res = await fetch(`${API_BASE}/user/decisions/1`);
-// //     if (!res.ok) throw new Error("Failed to fetch decision");
-// //     return await res.json();
-// //   } catch (e) {
-// //     console.error("Decision fetch failed:", e);
-// //     return null;
-// //   }
+// // // Logout function
+// // function logout() {
+// //     if (confirm('Are you sure you want to logout?')) {
+// //         localStorage.removeItem('authToken');
+// //         localStorage.removeItem('userId');
+// //         localStorage.removeItem('username');
+// //         window.location.href = '/login.html';
+// //     }
 // // }
 
-// // // -------------- Stream Loop --------------
-// // let streamTimer = null;
-// // let trustSeries=[], wifiSeries=[], audioSeries=[], watchSeries=[], driftSeries=[], hist={safe:0, anomalous:0};
+// // // Initialize when page loads
+// // document.addEventListener('DOMContentLoaded', async function() {
+// //     console.log('🚀 Initializing user dashboard...');
+    
+// //     // Check authentication first
+// //     if (!checkAuth()) {
+// //         return; // Redirect will happen automatically
+// //     }
+    
+// //     // Get user profile
+// //     const authenticated = await getUserProfile();
+// //     if (!authenticated) {
+// //         return; // Redirect will happen automatically
+// //     }
+    
+// //     // Now initialize the rest of the application
+// //     console.log('✅ Starting dashboard for user:', currentUser.username);
+    
+// //     // Initialize charts
+// //     initCharts();
+    
+// //     // Load initial decisions
+// //     loadDecisions();
+    
+// //     // Add event listeners
+// //     document.getElementById('btnStart').addEventListener('click', startStream);
+// //     document.getElementById('btnStop').addEventListener('click', stopStream);
+    
+// //     // Add logout button if it exists
+// //     const logoutBtn = document.getElementById('btnLogout');
+// //     if (logoutBtn) {
+// //         logoutBtn.addEventListener('click', logout);
+// //     }
+    
+// //     // Set initial button states
+// //     document.getElementById('btnStop').classList.add('ghost');
+    
+// //     console.log('✅ Dashboard fully initialized');
+// // });
 
-// // async function streamTick() {
-// //   const metrics = await pullLatestMetrics();
-// //   const decision = await pullUserDecision();
-// //   if (!metrics || !decision) return;
-
-// //   const rssi = metrics.wifi_rssi;
-// //   const entropy = metrics.audio_entropy;
-// //   const prox = metrics.watch_proximity;
-// //   const trust = decision.trust_score;
-// //   const result = decision.decision.toLowerCase();
-
-// //   // push series data
-// //   wifiSeries.push(rssi); if(wifiSeries.length>40) wifiSeries.shift();
-// //   audioSeries.push(entropy); if(audioSeries.length>40) audioSeries.shift();
-// //   watchSeries.push(prox); if(watchSeries.length>40) watchSeries.shift();
-// //   trustSeries.push(trust); if(trustSeries.length>60) trustSeries.shift();
-
-// //   hist[result]++;
-
-// //   // render charts
-// //   renderLineChart($('#trustChart'), trustSeries);
-// //   renderLineChart($('#wifiChart'), wifiSeries);
-// //   renderLineChart($('#audioChart'), audioSeries);
-// //   renderLineChart($('#watchChart'), watchSeries);
-// //   renderBars($('#histChart'), [{k:'safe', v:hist.safe},{k:'anom', v:hist.anomalous}]);
-
-// //   $('#trustScore').textContent = trust.toFixed(2);
-// //   $('#status').textContent = result;
-// //   $('#status').className = 'status ' + result;
-
-// //   // add table row
-// //   const row = document.createElement('tr');
-// //   row.innerHTML = `<td>${fmtTime(Date.now())}</td><td>${trust.toFixed(2)}</td><td>${result}</td><td>${prox>CFG.watchProxMaxMeters?'Watch far':'OK'}</td>`;
-// //   const tbody = $('#decisionsBody');
-// //   tbody.prepend(row);
-// //   while(tbody.children.length>12) tbody.removeChild(tbody.lastChild);
+// // // ... rest of your existing functions (initCharts, loadDecisions, etc.) remain the same
+// // // Login function
+// // async function login(username, password) {
+// //     try {
+// //         const response = await fetch(`${API_BASE}/auth/login`, {
+// //             method: 'POST',
+// //             headers: {
+// //                 'Content-Type': 'application/json'
+// //             },
+// //             body: JSON.stringify({
+// //                 username: username,
+// //                 password: password,
+// //                 device: navigator.userAgent.substring(0, 50) // Truncate if too long
+// //             })
+// //         });
+        
+// //         const data = await response.json();
+        
+// //         if (response.ok) {
+// //             authToken = data.token;
+// //             localStorage.setItem('authToken', authToken);
+// //             localStorage.setItem('userId', data.user_id);
+// //             localStorage.setItem('username', data.username);
+            
+// //             currentUser = {
+// //                 user_id: data.user_id,
+// //                 username: data.username,
+// //                 device: data.device
+// //             };
+            
+// //             window.location.href = '/';
+// //         } else {
+// //             alert('Login failed: ' + data.error);
+// //         }
+// //     } catch (error) {
+// //         console.error('Login error:', error);
+// //         alert('Login failed. Please try again.');
+// //     }
 // // }
 
-// // function startStream() {
-// //   if (streamTimer) return;
-// //   $('#status').textContent = 'running';
-// //   streamTimer = setInterval(streamTick, 3000); // every 3s
-// // }
-// // function stopStream() {
-// //   if (streamTimer) {
-// //     clearInterval(streamTimer);
-// //     streamTimer = null;
-// //   }
-// //   $('#status').textContent = 'stopped';
+// // // Logout function
+// // function logout() {
+// //     localStorage.removeItem('authToken');
+// //     localStorage.removeItem('userId');
+// //     localStorage.removeItem('username');
+// //     window.location.href = '/login.html';
 // // }
 
-// // // -------------- Init --------------
-// // (async function init(){
-// //   // Load config
-// //   const cfg = await pullStreamConfig();
-// //   $('#cfgWifiInt').textContent = cfg.wifiIntervalSec+'s';
-// //   $('#cfgAudioInt').textContent = cfg.audioIntervalSec+'s';
-// //   $('#cfgWatchInt').textContent = cfg.watchIntervalSec+'s';
-// //   $('#cfgTrust').textContent = cfg.trustMin.toFixed(2);
-// //   $('#cfgProx').textContent = cfg.watchProxMaxMeters.toFixed(1);
+// // // Make authentication decision with proper user context
+// // async function makeDecision(trustScore) {
+// //     if (!currentUser) return;
+    
+// //     try {
+// //         const response = await fetch(`${API_BASE}/auth/decision`, {
+// //             method: 'POST',
+// //             headers: {
+// //                 'Content-Type': 'application/json',
+// //                 'Authorization': `Bearer ${authToken}`
+// //             },
+// //             body: JSON.stringify({
+// //                 user_id: currentUser.user_id,
+// //                 trust: trustScore
+// //             })
+// //         });
+        
+// //         if (!response.ok) {
+// //             throw new Error(`HTTP error! status: ${response.status}`);
+// //         }
+        
+// //         const data = await response.json();
+        
+// //         // Update decisions table
+// //         loadDecisions();
+        
+// //         // Update histogram
+// //         updateHistogram(data.result);
+        
+// //         console.log(`✅ Decision saved for ${currentUser.username}: ${data.result}`);
+// //         return data;
+        
+// //     } catch (error) {
+// //         console.error('❌ Decision error:', error);
+// //         // Fallback: Create decision locally if backend fails
+// //         let result, note;
+// //         if (trustScore > 0.7) {
+// //             result = "ALLOW";
+// //             note = "Normal behavior pattern";
+// //         } else if (trustScore > 0.4) {
+// //             result = "CHALLENGE";
+// //             note = "Additional verification required";
+// //         } else {
+// //             result = "BLOCK";
+// //             note = "Suspicious activity detected";
+// //         }
+        
+// //         // Update histogram locally
+// //         updateHistogram(result);
+        
+// //         return { result, note, trust: trustScore };
+// //     }
+// // }
 
-// //   // Load decisions once (NOT in real-time)
-// //   const items = await pullRecentDecisions(2); // user_id=2 (Maha)
-// //   const tbody = $('#decisionsBody');
+// // // Load decisions for current user
+// // async function loadDecisions() {
+// //     if (!currentUser) return;
+    
+// //     try {
+// //         const response = await fetch(`${API_BASE}/user/decisions/${currentUser.user_id}`, {
+// //             headers: {
+// //                 'Authorization': `Bearer ${authToken}`
+// //             }
+// //         });
+        
+// //         if (response.ok) {
+// //             const decisions = await response.json();
+// //             const tbody = document.getElementById('decisionsBody');
+// //             tbody.innerHTML = '';
+            
+// //             decisions.forEach(d => {
+// //                 const row = document.createElement('tr');
+// //                 row.innerHTML = `
+// //                     <td>${new Date(d.timestamp).toLocaleString()}</td>
+// //                     <td>${d.trust.toFixed(2)}</td>
+// //                     <td>${d.result}</td>
+// //                     <td>${d.note || ''}</td>
+// //                 `;
+// //                 tbody.appendChild(row);
+// //             });
+// //         }
+// //     } catch (error) {
+// //         console.error('Error loading decisions:', error);
+// //     }
+// // }
 
-// //   items.forEach(x => {
-// //     const tr = document.createElement('tr');
-// //     tr.innerHTML = `
-// //       <td>${fmtTime(x.timestamp)}</td>
-// //       <td>${x.trust.toFixed(2)}</td>
-// //       <td>${x.result}</td>
-// //       <td>${x.note || ''}</td>
-// //     `;
-// //     tbody.appendChild(tr);
-// //   });
+// // // ... (rest of your existing chart functions remain the same)
 
-// //   // Buttons to start/stop simulator (if needed)
-// //   $('#btnStart').addEventListener('click', startStream);
-// //   $('#btnStop').addEventListener('click', stopStream);
-// // })();
+// // // Initialize when page loads
+// // document.addEventListener('DOMContentLoaded', async function() {
+// //     // Check authentication
+// //     if (!checkAuth()) return;
+    
+// //     // Get user profile
+// //     const authenticated = await getUserProfile();
+// //     if (!authenticated) return;
+    
+// //     // Initialize charts
+// //     initCharts();
+    
+// //     // Load initial decisions
+// //     loadDecisions();
+    
+// //     // Add event listeners
+// //     document.getElementById('btnStart').addEventListener('click', startStream);
+// //     document.getElementById('btnStop').addEventListener('click', stopStream);
+// //     document.getElementById('btnLogout').addEventListener('click', logout);
+    
+// //     // Set initial button states
+// //     document.getElementById('btnStop').classList.add('ghost');
+    
+// //     console.log(`✅ System ready for user: ${currentUser.username}`);
+// // });
 
 // const API_BASE = "http://127.0.0.1:5000/api";
-// let trustData = [];
 // let isStreaming = false;
-// let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
 // let updateInterval;
+// let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
+// let currentUser = null;
+
+// // Check authentication and redirect if not logged in
+// function checkAuth() {
+//     const token = localStorage.getItem('authToken');
+//     const userId = localStorage.getItem('userId');
+    
+//     if (!token || !userId) {
+//         console.log('❌ Not authenticated, redirecting to login');
+//         window.location.href = '/login.html';
+//         return false;
+//     }
+    
+//     console.log('✅ Authentication check passed');
+//     return true;
+// }
+
+// // Get user profile
+// async function getUserProfile() {
+//     const token = localStorage.getItem('authToken');
+    
+//     try {
+//         const response = await fetch(`${API_BASE}/auth/profile`, {
+//             headers: {
+//                 'Authorization': `Bearer ${token}`
+//             }
+//         });
+        
+//         if (response.ok) {
+//             currentUser = await response.json();
+//             console.log('✅ User profile loaded:', currentUser.username);
+//             updateUserInterface();
+//             return true;
+//         } else {
+//             console.error('❌ Failed to get user profile');
+//             // Clear invalid token and redirect to login
+//             localStorage.removeItem('authToken');
+//             localStorage.removeItem('userId');
+//             localStorage.removeItem('username');
+//             window.location.href = '/login.html';
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error('❌ Error getting profile:', error);
+//         localStorage.removeItem('authToken');
+//         localStorage.removeItem('userId');
+//         localStorage.removeItem('username');
+//         window.location.href = '/login.html';
+//         return false;
+//     }
+// }
+
+// // Update UI with user info
+// function updateUserInterface() {
+//     if (currentUser) {
+//         // Update user info in the sidebar
+//         const userElement = document.getElementById('user');
+//         const deviceElement = document.getElementById('device');
+//         const welcomeElement = document.getElementById('userWelcome');
+        
+//         if (userElement) userElement.textContent = currentUser.username;
+//         if (deviceElement) deviceElement.textContent = currentUser.device || 'Unknown Device';
+//         if (welcomeElement) welcomeElement.textContent = `Welcome, ${currentUser.username}`;
+        
+//         console.log('✅ UI updated with user info');
+//     }
+// }
 
 // // Initialize all charts
 // function initCharts() {
+//     console.log("📊 Initializing charts...");
+    
 //     // Trust Score Chart
 //     trustChart = new Chart(document.getElementById('trustChart'), {
 //         type: 'line',
@@ -392,7 +846,8 @@
 //                 borderColor: '#24d27b',
 //                 tension: 0.4,
 //                 fill: false,
-//                 pointRadius: 3
+//                 pointRadius: 3,
+//                 borderWidth: 2
 //             }]
 //         },
 //         options: {
@@ -416,7 +871,6 @@
 //         data: {
 //             labels: ['AP-1', 'AP-2', 'AP-3', 'AP-4', 'AP-5'],
 //             datasets: [{
-//                 label: 'RSSI (dBm)',
 //                 data: [-45, -52, -60, -65, -70],
 //                 backgroundColor: '#4f79bc',
 //                 borderWidth: 0
@@ -441,20 +895,24 @@
 //     audioChart = new Chart(document.getElementById('audioChart'), {
 //         type: 'line',
 //         data: {
-//             labels: Array.from({length: 13}, (_, i) => `MFCC ${i+1}`),
+//             labels: Array.from({length: 13}, (_, i) => `M${i+1}`),
 //             datasets: [{
-//                 label: 'Entropy',
 //                 data: Array(13).fill(0).map(() => Math.random() * 2 + 1),
 //                 borderColor: '#bc4f7d',
 //                 tension: 0.4,
-//                 fill: false
+//                 fill: false,
+//                 borderWidth: 2
 //             }]
 //         },
 //         options: {
 //             responsive: true,
 //             maintainAspectRatio: false,
 //             scales: {
-//                 y: { grid: { display: false } },
+//                 y: { 
+//                     min: 0,
+//                     max: 4,
+//                     grid: { display: false }
+//                 },
 //                 x: { grid: { display: false } }
 //             },
 //             plugins: { legend: { display: false } }
@@ -472,7 +930,8 @@
 //                 borderColor: '#4fbca9',
 //                 tension: 0.4,
 //                 fill: false,
-//                 pointRadius: 2
+//                 pointRadius: 2,
+//                 borderWidth: 2
 //             }]
 //         },
 //         options: {
@@ -501,7 +960,8 @@
 //                 borderColor: '#d27b24',
 //                 tension: 0.4,
 //                 fill: false,
-//                 pointRadius: 2
+//                 pointRadius: 2,
+//                 borderWidth: 2
 //             }]
 //         },
 //         options: {
@@ -525,7 +985,6 @@
 //         data: {
 //             labels: ['ALLOW', 'CHALLENGE', 'BLOCK'],
 //             datasets: [{
-//                 label: 'Count',
 //                 data: [0, 0, 0],
 //                 backgroundColor: ['#24d27b', '#d2b624', '#d22424'],
 //                 borderWidth: 0
@@ -541,96 +1000,59 @@
 //             plugins: { legend: { display: false } }
 //         }
 //     });
+    
+//     console.log("✅ Charts initialized successfully");
 // }
 
-// // Simulate data collection
-// function collectWiFiData() {
-//     // Simulate WiFi RSSI changes
-//     const newData = wifiChart.data.datasets[0].data.map(value => {
+// // Update sensor data charts
+// function updateSensorData() {
+//     // Update WiFi data
+//     const newWiFiData = wifiChart.data.datasets[0].data.map(value => {
 //         const change = (Math.random() - 0.5) * 5;
 //         return Math.max(-90, Math.min(-30, value + change));
 //     });
-//     wifiChart.data.datasets[0].data = newData;
+//     wifiChart.data.datasets[0].data = newWiFiData;
 //     wifiChart.update();
-    
-//     // Calculate WiFi stability score (0-1)
-//     const mean = newData.reduce((a, b) => a + b, 0) / newData.length;
-//     const variance = newData.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / newData.length;
-//     const stability = Math.max(0, 1 - (variance / 100));
-    
-//     return stability;
-// }
 
-// function collectAudioData() {
-//     // Simulate audio MFCC entropy changes
-//     const newData = audioChart.data.datasets[0].data.map(value => {
+//     // Update Audio data
+//     const newAudioData = audioChart.data.datasets[0].data.map(value => {
 //         const change = (Math.random() - 0.5) * 0.3;
 //         return Math.max(0.5, Math.min(3.5, value + change));
 //     });
-//     audioChart.data.datasets[0].data = newData;
+//     audioChart.data.datasets[0].data = newAudioData;
 //     audioChart.update();
-    
-//     // Calculate audio consistency score (0-1)
-//     const mean = newData.reduce((a, b) => a + b, 0) / newData.length;
-//     const consistency = Math.max(0, 1 - (Math.abs(mean - 2) / 1.5));
-    
-//     return consistency;
-// }
 
-// function collectWatchData() {
-//     // Simulate watch proximity
+//     // Update Watch data
+//     const distance = Math.random() * 8 + 1;
 //     const timestamp = new Date().toLocaleTimeString();
-//     const distance = Math.random() * 8 + 1; // 1-9 meters
     
-//     // Update watch chart
-//     if (watchChart.data.labels.length > 10) {
+//     if (watchChart.data.labels.length > 8) {
 //         watchChart.data.labels.shift();
 //         watchChart.data.datasets[0].data.shift();
 //     }
 //     watchChart.data.labels.push(timestamp);
 //     watchChart.data.datasets[0].data.push(distance);
 //     watchChart.update();
-    
-//     // Calculate proximity score (0-1)
-//     const proximityScore = Math.max(0, 1 - (distance / 10));
-    
-//     return proximityScore;
-// }
 
-// function calculateDrift() {
-//     // Simulate feature drift
+//     // Update Drift data
 //     const drift = Math.random() * 0.3;
-    
-//     // Update drift chart
-//     const timestamp = new Date().toLocaleTimeString();
-//     if (driftChart.data.labels.length > 10) {
+//     if (driftChart.data.labels.length > 8) {
 //         driftChart.data.labels.shift();
 //         driftChart.data.datasets[0].data.shift();
 //     }
 //     driftChart.data.labels.push(timestamp);
 //     driftChart.data.datasets[0].data.push(drift);
 //     driftChart.update();
-    
-//     return drift;
+
+//     return {
+//         wifiStability: Math.random() * 0.2 + 0.7,
+//         audioConsistency: Math.random() * 0.2 + 0.6,
+//         watchProximity: Math.max(0, 1 - (distance / 10)),
+//         featureDrift: drift
+//     };
 // }
 
-// // Calculate overall trust score
-// function calculateTrustScore() {
-//     const wifiStability = collectWiFiData();
-//     const audioConsistency = collectAudioData();
-//     const watchProximity = collectWatchData();
-//     const featureDrift = calculateDrift();
-    
-//     // Weighted trust score calculation
-//     const trustScore = (wifiStability * 0.3) + 
-//                       (audioConsistency * 0.3) + 
-//                       (watchProximity * 0.3) - 
-//                       (featureDrift * 0.3);
-    
-//     return Math.max(0, Math.min(1, trustScore));
-// }
-
-// // Update decision histogram
+// // Update histogram
 // function updateHistogram(decision) {
 //     const index = ['ALLOW', 'CHALLENGE', 'BLOCK'].indexOf(decision);
 //     if (index !== -1) {
@@ -639,184 +1061,298 @@
 //     }
 // }
 
-// // Load decision history
-// async function loadDecisions() {
+// // WiFi scanning functions
+// async function scanWiFi() {
 //     try {
-//         const response = await fetch(`${API_BASE}/user/decisions/1`); // Using user ID 1 for demo
+//         const response = await fetch(`${API_BASE}/user/wifi/scan`, {
+//             headers: {
+//                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+//             }
+//         });
+        
 //         if (response.ok) {
-//             const decisions = await response.json();
-//             const tbody = document.getElementById('decisionsBody');
-//             tbody.innerHTML = '';
-            
-//             decisions.forEach(d => {
-//                 const row = document.createElement('tr');
-//                 row.innerHTML = `
-//                     <td>${new Date(d.timestamp).toLocaleString()}</td>
-//                     <td>${d.trust.toFixed(2)}</td>
-//                     <td>${d.result}</td>
-//                     <td>${d.note || ''}</td>
-//                 `;
-//                 tbody.appendChild(row);
-//             });
+//             const data = await response.json();
+//             console.log('📡 WiFi scan results:', data);
+//             updateWiFiChart(data.access_points);
+//             return data.access_points;
 //         }
 //     } catch (error) {
-//         console.error('Error loading decisions:', error);
+//         console.error('WiFi scan error:', error);
+//     }
+//     return [];
+// }
+
+// async function getWiFiStability() {
+//     try {
+//         const response = await fetch(`${API_BASE}/user/wifi/stability`, {
+//             headers: {
+//                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+//             }
+//         });
+        
+//         if (response.ok) {
+//             const data = await response.json();
+//             console.log('📊 WiFi stability:', data);
+//             return data.stability_score;
+//         }
+//     } catch (error) {
+//         console.error('WiFi stability error:', error);
+//     }
+//     return 0.5; // Default neutral score
+// }
+
+// function updateWiFiChart(accessPoints) {
+//     if (!wifiChart || !accessPoints.length) return;
+    
+//     // Sort by signal strength and take top 5
+//     const topAPs = accessPoints
+//         .sort((a, b) => b.signal - a.signal)
+//         .slice(0, 5);
+    
+//     // Update chart data
+//     wifiChart.data.labels = topAPs.map(ap => ap.ssid.substring(0, 10) + '...');
+//     wifiChart.data.datasets[0].data = topAPs.map(ap => ap.signal);
+    
+//     wifiChart.update();
+// }
+
+// // Modify your existing sensor data function to include real WiFi data
+// async function updateSensorData() {
+//     let wifiStability = 0.5;
+    
+//     // Get real WiFi data if available
+//     try {
+//         wifiStability = await getWiFiStability();
+//         await scanWiFi(); // Update WiFi chart
+//     } catch (error) {
+//         console.log('Using simulated WiFi data');
+//         // Fallback to simulated data
+//         const newWiFiData = wifiChart.data.datasets[0].data.map(value => {
+//             const change = (Math.random() - 0.5) * 5;
+//             return Math.max(-90, Math.min(-30, value + change));
+//         });
+//         wifiChart.data.datasets[0].data = newWiFiData;
+//         wifiChart.update();
+        
+//         // Simulate stability based on signal variance
+//         const variance = Math.random() * 0.3;
+//         wifiStability = Math.max(0, 1 - variance);
+//     }
+    
+//     // Rest of your existing sensor updates...
+//     const audioConsistency = Math.random() * 0.2 + 0.6;
+//     const distance = Math.random() * 8 + 1;
+//     const watchProximity = Math.max(0, 1 - (distance / 10));
+//     const drift = Math.random() * 0.3;
+    
+//     // Update other charts...
+//     updateOtherCharts(distance, drift);
+    
+//     return {
+//         wifiStability: wifiStability,
+//         audioConsistency: audioConsistency,
+//         watchProximity: watchProximity,
+//         featureDrift: drift
+//     };
+// }
+
+// function updateOtherCharts(distance, drift) {
+//     // Update watch chart
+//     const timestamp = new Date().toLocaleTimeString();
+//     if (watchChart.data.labels.length > 8) {
+//         watchChart.data.labels.shift();
+//         watchChart.data.datasets[0].data.shift();
+//     }
+//     watchChart.data.labels.push(timestamp);
+//     watchChart.data.datasets[0].data.push(distance);
+//     watchChart.update();
+
+//     // Update drift chart
+//     if (driftChart.data.labels.length > 8) {
+//         driftChart.data.labels.shift();
+//         driftChart.data.datasets[0].data.shift();
+//     }
+//     driftChart.data.labels.push(timestamp);
+//     driftChart.data.datasets[0].data.push(drift);
+//     driftChart.update();
+// }
+// // REPLACE your existing updateTrustScore function with this debug version
+// async function updateTrustScore() {
+//     try {
+//         const behavioralData = collectBehavioralData();
+        
+//         // ADD DEBUG LOGGING HERE
+//         console.log('Behavioral data being sent:', behavioralData);
+        
+//         const response = await fetch('/api/trust/score', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${getAuthToken()}`
+//             },
+//             body: JSON.stringify({
+//                 user_id: getCurrentUserId(),
+//                 behavioral_data: behavioralData
+//             })
+//         });
+        
+//         // ADD RESPONSE DEBUGGING
+//         console.log('Response status:', response.status);
+        
+//         if (response.ok) {
+//             const data = await response.json();
+//             console.log('Trust score response:', data); // ADD THIS LINE
+            
+//             // ADD VALIDATION
+//             if (data.trust_score !== undefined && data.trust_score !== null) {
+//                 updateTrustUI(data.trust_score);
+//             } else {
+//                 console.error('Invalid trust score received:', data);
+//                 updateTrustUI(0.5);
+//             }
+//         } else {
+//             console.error('Trust score API error:', response.status);
+//             const errorText = await response.text();
+//             console.error('Error response:', errorText);
+//             updateTrustUI(0.5);
+//         }
+//     } catch (error) {
+//         console.error('Trust score update failed:', error);
+//         updateTrustUI(0.5);
 //     }
 // }
 
+// // ENHANCE your updateTrustUI function with NaN protection
+// function updateTrustUI(score) {
+//     const trustElement = document.getElementById('trust-score');
+//     const gaugeElement = document.getElementById('trust-gauge');
+    
+//     // ADD NaN CHECK
+//     if (isNaN(score) || score === null || score === undefined) {
+//         console.warn('Invalid score received, using default:', score);
+//         score = 0.5;
+//     }
+    
+//     if (trustElement) {
+//         trustElement.textContent = score.toFixed(2);
+//     }
+    
+//     if (gaugeElement) {
+//         gaugeElement.style.width = `${score * 100}%`;
+//     }
+// }
+
+// // ADD A TEST FUNCTION TO CHECK IF THE API IS WORKING
+// async function testTrustAPI() {
+//     console.log('Testing trust API...');
+    
+//     const testData = {
+//         user_id: 'test_user',
+//         behavioral_data: {
+//             typing_metrics: { speed: 45, rhythm: 0.7 },
+//             mouse_metrics: { speed: 95, accuracy: 0.8 },
+//             context: { ip: '192.168.1.1', time_of_day: 14 }
+//         }
+//     };
+    
+//     try {
+//         const response = await fetch('/api/trust/score', {
+//             method: 'POST',
+//             headers: {'Content-Type': 'application/json'},
+//             body: JSON.stringify(testData)
+//         });
+        
+//         const result = await response.json();
+//         console.log('Test API result:', result);
+//         return result;
+//     } catch (error) {
+//         console.error('Test API failed:', error);
+//     }
+// }
+
+// // Call this in your browser console to test
+// // testTrustAPI();
 // // Make authentication decision
 // async function makeDecision(trustScore) {
+//     if (!currentUser) return;
+    
 //     try {
 //         const response = await fetch(`${API_BASE}/auth/decision`, {
 //             method: 'POST',
 //             headers: {
 //                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
 //             },
 //             body: JSON.stringify({
-//                 user_id: 1, // Using user ID 1 for demo
+//                 user_id: currentUser.user_id,
 //                 trust: trustScore
 //             })
 //         });
         
+//         if (!response.ok) throw new Error('API request failed');
+        
 //         const data = await response.json();
-//         if (response.ok) {
-//             // Update decisions table
-//             loadDecisions();
-            
-//             // Update histogram
-//             updateHistogram(data.result);
-            
-//             return data;
-//         }
+//         addDecisionToTable(trustScore, data.result, data.note);
+//         updateHistogram(data.result);
+        
+//         console.log(`✅ Decision saved: ${data.result}`);
+//         return data;
+        
 //     } catch (error) {
-//         console.error('Decision error:', error);
+//         console.error('❌ Decision error:', error);
+//         // Fallback
+//         let result, note;
+//         if (trustScore > 0.7) {
+//             result = "ALLOW";
+//             note = "Normal behavior pattern";
+//         } else if (trustScore > 0.4) {
+//             result = "CHALLENGE";
+//             note = "Additional verification required";
+//         } else {
+//             result = "BLOCK";
+//             note = "Suspicious activity detected";
+//         }
+        
+//         addDecisionToTable(trustScore, result, note);
+//         updateHistogram(result);
+        
+//         return { result, note, trust: trustScore };
+//     }
+// }
+
+// // Add decision to table
+// function addDecisionToTable(trust, result, note) {
+//     const tbody = document.getElementById('decisionsBody');
+    
+//     // Remove "no decisions" message
+//     if (tbody.children.length === 1 && tbody.children[0].cells.length === 1) {
+//         tbody.innerHTML = '';
+//     }
+    
+//     const row = document.createElement('tr');
+    
+//     // Add class based on decision result
+//     let decisionClass = '';
+//     if (result === 'ALLOW') decisionClass = 'decision-allow';
+//     else if (result === 'CHALLENGE') decisionClass = 'decision-challenge';
+//     else if (result === 'BLOCK') decisionClass = 'decision-block';
+    
+//     row.innerHTML = `
+//         <td>${new Date().toLocaleTimeString()}</td>
+//         <td>${trust.toFixed(2)}</td>
+//         <td class="${decisionClass}">${result}</td>
+//         <td>${note}</td>
+//     `;
+    
+//     tbody.insertBefore(row, tbody.firstChild);
+    
+//     // Keep only last 10 decisions
+//     while (tbody.children.length > 10) {
+//         tbody.removeChild(tbody.lastChild);
 //     }
 // }
 
 // // Start streaming trust data
-// function startStream() {
-//     if (isStreaming) return;
-    
-//     isStreaming = true;
-//     const statusElement = document.getElementById('status');
-//     statusElement.textContent = 'active';
-//     statusElement.className = 'status safe';
-    
-//     document.getElementById('btnStart').classList.add('ghost');
-//     document.getElementById('btnStop').classList.remove('ghost');
-    
-//     // Clear any existing interval
-//     if (updateInterval) {
-//         clearInterval(updateInterval);
-//     }
-    
-//     // Start collecting data every 2 seconds
-//     updateInterval = setInterval(async () => {
-//         if (!isStreaming) {
-//             clearInterval(updateInterval);
-//             return;
-//         }
-        
-//         // Calculate trust score
-//         const trustScore = calculateTrustScore();
-//         trustData.push({
-//             timestamp: new Date().toISOString(),
-//             score: trustScore
-//         });
-        
-//         // Update UI
-//         document.getElementById('trustScore').textContent = trustScore.toFixed(2);
-        
-//         // Update trust chart
-//         if (trustChart) {
-//             const now = new Date();
-//             const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
-            
-//             // Keep only last 20 data points
-//             if (trustChart.data.labels.length > 20) {
-//                 trustChart.data.labels.shift();
-//                 trustChart.data.datasets[0].data.shift();
-//             }
-            
-//             trustChart.data.labels.push(timeLabel);
-//             trustChart.data.datasets[0].data.push(trustScore);
-//             trustChart.update('none');
-//         }
-        
-//         // Make authentication decision every 10 seconds (every 5th update)
-//         if (trustData.length % 5 === 0) {
-//             await makeDecision(trustScore);
-//         }
-        
-//     }, 2000); // Update every 2 seconds
-// }
-
-// // Stop streaming
-// function stopStream() {
-//     isStreaming = false;
-//     const statusElement = document.getElementById('status');
-//     statusElement.textContent = 'stopped';
-//     statusElement.className = 'status';
-    
-//     document.getElementById('btnStart').classList.remove('ghost');
-//     document.getElementById('btnStop').classList.add('ghost');
-    
-//     // Clear the update interval
-//     if (updateInterval) {
-//         clearInterval(updateInterval);
-//         updateInterval = null;
-//     }
-// }
-
-// // Initialize when page loads
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Initialize all charts
-//     initCharts();
-    
-//     // Load initial decisions
-//     loadDecisions();
-    
-//     // Add event listeners to buttons
-//     document.getElementById('btnStart').addEventListener('click', startStream);
-//     document.getElementById('btnStop').addEventListener('click', stopStream);
-    
-//     // Set initial button states
-//     document.getElementById('btnStop').classList.add('ghost');
-// });
-
-// const API_BASE = "http://127.0.0.1:5000/api";
-// let isStreaming = false;
-// let updateInterval;
-
-// console.log("✅ app.js is loaded!");
-
-// // Simple debug function to show we're running
-// function debugLog(message) {
-//     console.log(message);
-//     const now = new Date().toLocaleTimeString();
-//     document.getElementById('trustScore').textContent = now + " - " + message;
-// }
-
-// // Initialize charts with simple placeholders
-// function initCharts() {
-//     console.log("📊 Charts initialized (placeholder)");
-    
-//     // Just create simple chart containers for now
-//     const charts = ['trustChart', 'wifiChart', 'audioChart', 'watchChart', 'driftChart', 'histChart'];
-//     charts.forEach(chartId => {
-//         const canvas = document.getElementById(chartId);
-//         if (canvas) {
-//             const ctx = canvas.getContext('2d');
-//             ctx.fillStyle = '#f0f0f0';
-//             ctx.fillRect(0, 0, canvas.width, canvas.height);
-//             ctx.fillStyle = '#666';
-//             ctx.font = '12px Arial';
-//             ctx.fillText('Chart: ' + chartId, 10, 20);
-//         }
-//     });
-// }
-
-// // Start streaming trust data - SIMPLIFIED VERSION
 // function startStream() {
 //     if (isStreaming) return;
     
@@ -838,60 +1374,47 @@
     
 //     let counter = 0;
     
-//     // Start simple data generation every second
+//     // Start data generation every 2 seconds
 //     updateInterval = setInterval(() => {
 //         if (!isStreaming) return;
         
 //         counter++;
-//         const trustScore = (Math.sin(counter * 0.2) + 1) / 2; // Oscillating value 0-1
         
-//         // Update trust score display
-//         document.getElementById('trustScore').textContent = trustScore.toFixed(2);
+//         // Update all sensor data
+//         const sensorData = updateSensorData();
         
-//         // Update status every 5 seconds
+//         // Calculate trust score (weighted average)
+//         const trustScore = (sensorData.wifiStability * 0.3) + 
+//                           (sensorData.audioConsistency * 0.3) + 
+//                           (sensorData.watchProximity * 0.3) - 
+//                           (sensorData.featureDrift * 0.3);
+        
+//         const finalTrustScore = Math.max(0, Math.min(1, trustScore));
+        
+//         // Update trust score display with animation
+//         const trustElement = document.getElementById('trustScore');
+//         trustElement.textContent = finalTrustScore.toFixed(2);
+//         trustElement.classList.add('trust-pulse');
+//         setTimeout(() => trustElement.classList.remove('trust-pulse'), 500);
+        
+//         // Update trust chart
+//         const now = new Date();
+//         const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
+        
+//         if (trustChart.data.labels.length > 15) {
+//             trustChart.data.labels.shift();
+//             trustChart.data.datasets[0].data.shift();
+//         }
+//         trustChart.data.labels.push(timeLabel);
+//         trustChart.data.datasets[0].data.push(finalTrustScore);
+//         trustChart.update('none');
+        
+//         // Make authentication decision every 10 seconds (every 5th update)
 //         if (counter % 5 === 0) {
-//             let result, note;
-//             if (trustScore > 0.7) {
-//                 result = "ALLOW";
-//                 note = "Good trust score";
-//             } else if (trustScore > 0.4) {
-//                 result = "CHALLENGE";
-//                 note = "Medium trust score";
-//             } else {
-//                 result = "BLOCK";
-//                 note = "Low trust score";
-//             }
-            
-//             // Add to decisions table
-//             const tbody = document.getElementById('decisionsBody');
-//             const row = document.createElement('tr');
-//             const now = new Date().toLocaleTimeString();
-            
-//             row.innerHTML = `
-//                 <td>${now}</td>
-//                 <td>${trustScore.toFixed(2)}</td>
-//                 <td>${result}</td>
-//                 <td>${note}</td>
-//             `;
-            
-//             // Add to beginning of table
-//             if (tbody.firstChild) {
-//                 tbody.insertBefore(row, tbody.firstChild);
-//             } else {
-//                 tbody.appendChild(row);
-//             }
-            
-//             // Keep only last 10 decisions
-//             while (tbody.children.length > 10) {
-//                 tbody.removeChild(tbody.lastChild);
-//             }
-            
-//             console.log(`Decision: ${result} (${trustScore.toFixed(2)})`);
+//             makeDecision(finalTrustScore);
 //         }
         
-//         console.log(`Update #${counter}: ${trustScore.toFixed(2)}`);
-        
-//     }, 1000); // Update every second
+//     }, 2000); // Update every 2 seconds
 // }
 
 // // Stop streaming
@@ -914,333 +1437,395 @@
 //     }
 // }
 
+// // Logout function
+// function logout() {
+//     if (confirm('Are you sure you want to logout?')) {
+//         localStorage.removeItem('authToken');
+//         localStorage.removeItem('userId');
+//         localStorage.removeItem('username');
+//         window.location.href = '/login.html';
+//     }
+// }
+
 // // Initialize when page loads
-// document.addEventListener('DOMContentLoaded', function() {
-//     console.log("🚀 DOM loaded, initializing...");
+// document.addEventListener('DOMContentLoaded', async function() {
+//     console.log("🚀 User dashboard loaded");
     
-//     // Initialize simple charts
-//     initCharts();
-    
-//     // Add event listeners to buttons
-//     const startBtn = document.getElementById('btnStart');
-//     const stopBtn = document.getElementById('btnStop');
-    
-//     if (startBtn && stopBtn) {
-//         startBtn.addEventListener('click', startStream);
-//         stopBtn.addEventListener('click', stopStream);
-//         console.log("✅ Button listeners added");
-        
-//         // Set initial button states
-//         stopBtn.classList.add('ghost');
-//     } else {
-//         console.error("❌ Buttons not found!");
-//         if (!startBtn) console.error("Missing #btnStart");
-//         if (!stopBtn) console.error("Missing #btnStop");
+//     // Check authentication first
+//     if (!checkAuth()) {
+//         return; // Redirect will happen automatically
 //     }
     
-//     // Show initial status
-//     debugLog("Ready to start streaming");
+//     // Get user profile
+//     const authenticated = await getUserProfile();
+//     if (!authenticated) {
+//         return; // Redirect will happen automatically
+//     }
+    
+//     // Now initialize the rest of the application
+//     console.log("✅ Starting dashboard for user:", currentUser.username);
+    
+//     // Initialize charts
+//     initCharts();
+    
+//     // Add event listeners
+//     document.getElementById('btnStart').addEventListener('click', startStream);
+//     document.getElementById('btnStop').addEventListener('click', stopStream);
+//     document.getElementById('btnLogout').addEventListener('click', logout);
+    
+//     // Set initial button states
+//     document.getElementById('btnStop').classList.add('ghost');
+    
+//     console.log("✅ Dashboard fully initialized");
 // });
 
 const API_BASE = "http://127.0.0.1:5000/api";
 let isStreaming = false;
 let updateInterval;
 let trustChart, wifiChart, audioChart, watchChart, driftChart, histChart;
+let currentUser = null;
 
-console.log("✅ app.js is loaded!");
+
+// Debug authentication status
+console.log('=== AUTHENTICATION DEBUG ===');
+console.log('Token exists:', !!localStorage.getItem('authToken'));
+console.log('User ID:', localStorage.getItem('userId'));
+console.log('Username:', localStorage.getItem('username'));
+console.log('Current URL:', window.location.href);
+console.log('============================');
+
+
+// Helper functions that were missing
+function getAuthToken() {
+    return localStorage.getItem('authToken');
+}
+
+function getCurrentUserId() {
+    return localStorage.getItem('userId');
+}
+
+function getCurrentUsername() {
+    return localStorage.getItem('username');
+}
+
+// Simple behavioral data collection (mock for now)
+function collectBehavioralData() {
+    return {
+        typing_metrics: { 
+            speed: Math.random() * 50 + 30, 
+            rhythm: Math.random() * 0.5 + 0.5 
+        },
+        mouse_metrics: { 
+            speed: Math.random() * 50 + 50, 
+            accuracy: Math.random() * 0.3 + 0.7 
+        },
+        context: { 
+            time_of_day: new Date().getHours(),
+            user_agent: navigator.userAgent 
+        }
+    };
+}
+
+// Check authentication and redirect if not logged in
+function checkAuth() {
+    const token = getAuthToken();
+    const userId = getCurrentUserId();
+    
+    console.log('🔐 Auth check - Token:', token ? 'Present' : 'Missing', 'User ID:', userId);
+    
+    if (!token || !userId) {
+        console.log('❌ Not authenticated, redirecting to login');
+        window.location.href = '/login.html';
+        return false;
+    }
+    
+    console.log('✅ Authentication check passed');
+    return true;
+}
+
+// Get user profile - SIMPLIFIED to avoid API calls that don't exist
+async function getUserProfile() {
+    // Use stored data instead of making API call to /auth/profile
+    const username = getCurrentUsername();
+    const userId = getCurrentUserId();
+    
+    if (username && userId) {
+        currentUser = {
+            user_id: parseInt(userId),
+            username: username,
+            device: 'Current Device'
+        };
+        console.log('✅ User profile loaded from storage:', currentUser.username);
+        updateUserInterface();
+        return true;
+    } else {
+        console.error('❌ No user data in storage');
+        logout();
+        return false;
+    }
+}
+
+// Update UI with user info
+function updateUserInterface() {
+    if (currentUser) {
+        const userElement = document.getElementById('user');
+        const deviceElement = document.getElementById('device');
+        const welcomeElement = document.getElementById('userWelcome');
+        
+        if (userElement) userElement.textContent = currentUser.username;
+        if (deviceElement) deviceElement.textContent = currentUser.device || 'Unknown Device';
+        if (welcomeElement) welcomeElement.textContent = `Welcome, ${currentUser.username}`;
+        
+        console.log('✅ UI updated with user info');
+    }
+}
 
 // Initialize all charts
 function initCharts() {
     console.log("📊 Initializing charts...");
     
     // Trust Score Chart
-    trustChart = new Chart(document.getElementById('trustChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Trust Score',
-                data: [],
-                borderColor: '#24d27b',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 3,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 1,
-                    grid: { display: false }
+    const trustCtx = document.getElementById('trustChart');
+    if (trustCtx) {
+        trustChart = new Chart(trustCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Trust Score',
+                    data: [],
+                    borderColor: '#24d27b',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 3,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        grid: { display: false }
+                    },
+                    x: { display: false }
                 },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
 
-    // WiFi RSSI Chart
-    wifiChart = new Chart(document.getElementById('wifiChart'), {
-        type: 'bar',
-        data: {
-            labels: ['AP-1', 'AP-2', 'AP-3', 'AP-4', 'AP-5'],
-            datasets: [{
-                data: [-45, -52, -60, -65, -70],
-                backgroundColor: '#4f79bc',
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { 
-                    reverse: true,
-                    min: -90,
-                    max: -30,
-                    grid: { display: false }
-                }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Audio MFCC Chart
-    audioChart = new Chart(document.getElementById('audioChart'), {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 13}, (_, i) => `M${i+1}`),
-            datasets: [{
-                data: Array(13).fill(0).map(() => Math.random() * 2 + 1),
-                borderColor: '#bc4f7d',
-                tension: 0.4,
-                fill: false,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { 
-                    min: 0,
-                    max: 4,
-                    grid: { display: false }
-                },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Watch Proximity Chart
-    watchChart = new Chart(document.getElementById('watchChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Distance (m)',
-                data: [],
-                borderColor: '#4fbca9',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 10,
-                    grid: { display: false }
-                },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Feature Drift Chart
-    driftChart = new Chart(document.getElementById('driftChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Drift Score',
-                data: [],
-                borderColor: '#d27b24',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 1,
-                    grid: { display: false }
-                },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Decision Histogram
-    histChart = new Chart(document.getElementById('histChart'), {
-        type: 'bar',
-        data: {
-            labels: ['ALLOW', 'CHALLENGE', 'BLOCK'],
-            datasets: [{
-                data: [0, 0, 0],
-                backgroundColor: ['#24d27b', '#d2b624', '#d22424'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, grid: { display: false } },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-    
+    // Initialize other charts similarly but simplified for now
     console.log("✅ Charts initialized successfully");
 }
 
-// Update WiFi data
-function updateWiFiData() {
-    const newData = wifiChart.data.datasets[0].data.map(value => {
-        const change = (Math.random() - 0.5) * 5;
-        return Math.max(-90, Math.min(-30, value + change));
-    });
-    wifiChart.data.datasets[0].data = newData;
-    wifiChart.update();
-    
-    return Math.random() * 0.2 + 0.7; // Return WiFi stability score
-}
-
-// Update Audio data
-function updateAudioData() {
-    const newData = audioChart.data.datasets[0].data.map(value => {
-        const change = (Math.random() - 0.5) * 0.3;
-        return Math.max(0.5, Math.min(3.5, value + change));
-    });
-    audioChart.data.datasets[0].data = newData;
-    audioChart.update();
-    
-    return Math.random() * 0.2 + 0.6; // Return audio consistency score
-}
-
-// Update Watch data
-function updateWatchData() {
-    const distance = Math.random() * 8 + 1; // 1-9 meters
-    const timestamp = new Date().toLocaleTimeString();
-    
-    // Update watch chart
-    if (watchChart.data.labels.length > 8) {
-        watchChart.data.labels.shift();
-        watchChart.data.datasets[0].data.shift();
+// Update trust score with proper error handling
+async function updateTrustScore() {
+    try {
+        const behavioralData = collectBehavioralData();
+        
+        console.log('📊 Behavioral data being sent:', behavioralData);
+        
+        const response = await fetch('/api/trust/score', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: getCurrentUserId(),
+                behavioral_data: behavioralData
+            })
+        });
+        
+        console.log('📡 Response status:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Trust score response:', data);
+            
+            if (data.trust_score !== undefined && data.trust_score !== null) {
+                updateTrustUI(data.trust_score);
+                return data.trust_score;
+            } else {
+                console.error('❌ Invalid trust score received:', data);
+                updateTrustUI(0.7); // Default safe score
+                return 0.7;
+            }
+        } else {
+            console.error('❌ Trust score API error:', response.status);
+            // Use mock data when API fails
+            const mockScore = 0.7 + (Math.random() * 0.3 - 0.15); // 0.55-0.85
+            updateTrustUI(mockScore);
+            return mockScore;
+        }
+    } catch (error) {
+        console.error('❌ Trust score update failed:', error);
+        // Fallback to mock data
+        const mockScore = 0.7 + (Math.random() * 0.3 - 0.15);
+        updateTrustUI(mockScore);
+        return mockScore;
     }
-    watchChart.data.labels.push(timestamp);
-    watchChart.data.datasets[0].data.push(distance);
-    watchChart.update();
-    
-    return Math.max(0, 1 - (distance / 10)); // Return proximity score
 }
 
-// Update Drift data
-function updateDriftData() {
-    const drift = Math.random() * 0.3;
-    const timestamp = new Date().toLocaleTimeString();
+// Update trust UI with NaN protection
+function updateTrustUI(score) {
+    const trustElement = document.getElementById('trustScore');
+    const gaugeElement = document.getElementById('trustGauge');
     
-    // Update drift chart
-    if (driftChart.data.labels.length > 8) {
-        driftChart.data.labels.shift();
-        driftChart.data.datasets[0].data.shift();
+    // NaN protection
+    if (isNaN(score) || score === null || score === undefined) {
+        console.warn('⚠️ Invalid score received, using default:', score);
+        score = 0.7;
     }
-    driftChart.data.labels.push(timestamp);
-    driftChart.data.datasets[0].data.push(drift);
-    driftChart.update();
     
-    return drift; // Return drift score
+    // Ensure score is between 0 and 1
+    score = Math.max(0, Math.min(1, score));
+    
+    if (trustElement) {
+        trustElement.textContent = score.toFixed(2);
+        
+        // Color coding based on score
+        if (score > 0.7) {
+            trustElement.style.color = '#24d27b'; // Green
+        } else if (score > 0.4) {
+            trustElement.style.color = '#d2b624'; // Yellow
+        } else {
+            trustElement.style.color = '#d22424'; // Red
+        }
+    }
+    
+    if (gaugeElement) {
+        gaugeElement.style.width = `${score * 100}%`;
+        
+        // Color coding for gauge
+        if (score > 0.7) {
+            gaugeElement.style.background = '#24d27b';
+        } else if (score > 0.4) {
+            gaugeElement.style.background = '#d2b624';
+        } else {
+            gaugeElement.style.background = '#d22424';
+        }
+    }
+}
+
+// Update sensor data charts
+function updateSensorData() {
+    // Simulate sensor data updates
+    return {
+        wifiStability: Math.random() * 0.2 + 0.7,
+        audioConsistency: Math.random() * 0.2 + 0.6,
+        watchProximity: Math.random() * 0.3 + 0.6,
+        featureDrift: Math.random() * 0.2
+    };
 }
 
 // Update histogram
 function updateHistogram(decision) {
-    const index = ['ALLOW', 'CHALLENGE', 'BLOCK'].indexOf(decision);
-    if (index !== -1) {
-        histChart.data.datasets[0].data[index]++;
-        histChart.update();
-    }
+    const histChartElement = document.getElementById('histChart');
+    if (!histChartElement) return;
+    
+    // Simple histogram update without Chart.js for now
+    console.log('📊 Decision recorded:', decision);
 }
 
 // Make authentication decision
 async function makeDecision(trustScore) {
+    if (!currentUser) return;
+    
     try {
-        const response = await fetch(`${API_BASE}/auth/decision`, {
+        // Try to save decision to backend
+        const response = await fetch('/api/auth/decision', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: 1, // Using user ID 1 for demo
+                user_id: currentUser.user_id,
                 trust: trustScore
             })
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        let result, note;
+        
+        if (response.ok) {
+            const data = await response.json();
+            result = data.result;
+            note = data.note;
+            console.log('✅ Decision saved to backend:', result);
+        } else {
+            // Fallback decision making
+            if (trustScore > 0.7) {
+                result = "ALLOW";
+                note = "Normal behavior pattern";
+            } else if (trustScore > 0.4) {
+                result = "CHALLENGE";
+                note = "Additional verification required";
+            } else {
+                result = "BLOCK";
+                note = "Suspicious activity detected";
+            }
+            console.log('⚠️ Using fallback decision:', result);
         }
         
-        const data = await response.json();
+        addDecisionToTable(trustScore, result, note);
+        updateHistogram(result);
         
-        // Update decisions table
-        loadDecisions();
-        
-        // Update histogram
-        updateHistogram(data.result);
-        
-        console.log(`✅ Decision saved: ${data.result}`);
-        return data;
+        return { result, note, trust: trustScore };
         
     } catch (error) {
         console.error('❌ Decision error:', error);
-        // Fallback: Create decision locally if backend fails
-        let result, note;
-        if (trustScore > 0.7) {
-            result = "ALLOW";
-            note = "Normal behavior pattern";
-        } else if (trustScore > 0.4) {
-            result = "CHALLENGE";
-            note = "Additional verification required";
-        } else {
-            result = "BLOCK";
-            note = "Suspicious activity detected";
-        }
         
-        // Update histogram locally
+        // Final fallback
+        const result = trustScore > 0.5 ? "ALLOW" : "CHALLENGE";
+        const note = "Automatic decision";
+        
+        addDecisionToTable(trustScore, result, note);
         updateHistogram(result);
         
         return { result, note, trust: trustScore };
     }
 }
+
+// Add decision to table
+function addDecisionToTable(trust, result, note) {
+    const tbody = document.getElementById('decisionsBody');
+    if (!tbody) {
+        console.warn('❌ Decisions table not found');
+        return;
+    }
+    
+    // Remove "no decisions" message if present
+    if (tbody.children.length === 1 && tbody.children[0].cells.length === 1) {
+        tbody.innerHTML = '';
+    }
+    
+    const row = document.createElement('tr');
+    
+    // Add class based on decision result
+    let decisionClass = '';
+    if (result === 'ALLOW') decisionClass = 'decision-allow';
+    else if (result === 'CHALLENGE') decisionClass = 'decision-challenge';
+    else if (result === 'BLOCK') decisionClass = 'decision-block';
+    
+    row.innerHTML = `
+        <td>${new Date().toLocaleTimeString()}</td>
+        <td>${trust.toFixed(2)}</td>
+        <td class="${decisionClass}">${result}</td>
+        <td>${note}</td>
+    `;
+    
+    tbody.insertBefore(row, tbody.firstChild);
+    
+    // Keep only last 10 decisions
+    while (tbody.children.length > 10) {
+        tbody.removeChild(tbody.lastChild);
+    }
+}
+
 // Start streaming trust data
-function startStream() {
+async function startStream() {
     if (isStreaming) return;
     
     console.log("▶️ Starting stream...");
@@ -1248,11 +1833,16 @@ function startStream() {
     
     // Update UI
     const statusElement = document.getElementById('status');
-    statusElement.textContent = 'active';
-    statusElement.className = 'status safe';
+    if (statusElement) {
+        statusElement.textContent = 'ACTIVE';
+        statusElement.className = 'status safe';
+    }
     
-    document.getElementById('btnStart').classList.add('ghost');
-    document.getElementById('btnStop').classList.remove('ghost');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    
+    if (btnStart) btnStart.classList.add('ghost');
+    if (btnStop) btnStop.classList.remove('ghost');
     
     // Clear any existing interval
     if (updateInterval) {
@@ -1261,100 +1851,30 @@ function startStream() {
     
     let counter = 0;
     
-    // Start data generation every 2 seconds
-    updateInterval = setInterval(() => {
+    // Start data generation every 3 seconds (slower for demo)
+    updateInterval = setInterval(async () => {
         if (!isStreaming) return;
         
         counter++;
+        console.log(`🔄 Update #${counter}`);
         
-        // Update all sensor data
-        const wifiScore = updateWiFiData();
-        const audioScore = updateAudioData();
-        const watchScore = updateWatchData();
-        const driftScore = updateDriftData();
-        
-        // Calculate trust score (weighted average)
-        const trustScore = (wifiScore * 0.3) + (audioScore * 0.3) + (watchScore * 0.3) - (driftScore * 0.3);
-        const finalTrustScore = Math.max(0, Math.min(1, trustScore));
-        
-        // Update trust score display
-        document.getElementById('trustScore').textContent = finalTrustScore.toFixed(2);
-        
-        // Update trust chart
-        const now = new Date();
-        const timeLabel = `${now.getMinutes()}:${now.getSeconds()}`;
-        
-        if (trustChart.data.labels.length > 15) {
-            trustChart.data.labels.shift();
-            trustChart.data.datasets[0].data.shift();
-        }
-        trustChart.data.labels.push(timeLabel);
-        trustChart.data.datasets[0].data.push(finalTrustScore);
-        trustChart.update('none');
-        
-        // Make decision every 10 seconds (every 5th update)
-        if (counter % 5 === 0) {
-            let result, note;
-            if (finalTrustScore > 0.7) {
-                result = "ALLOW";
-                note = "Normal behavior pattern";
-            } else if (finalTrustScore > 0.4) {
-                result = "CHALLENGE";
-                note = "Additional verification required";
-            } else {
-                result = "BLOCK";
-                note = "Suspicious activity detected";
+        try {
+            // Get trust score
+            const trustScore = await updateTrustScore();
+            
+            // Update sensor data
+            updateSensorData();
+            
+            // Make authentication decision every 15 seconds (every 5th update)
+            if (counter % 5 === 0) {
+                await makeDecision(trustScore);
             }
             
-            // Add to decisions table
-            const tbody = document.getElementById('decisionsBody');
-            const row = document.createElement('tr');
-            const nowTime = new Date().toLocaleTimeString();
-            
-            row.innerHTML = `
-                <td>${nowTime}</td>
-                <td>${finalTrustScore.toFixed(2)}</td>
-                <td>${result}</td>
-                <td>${note}</td>
-            `;
-            
-            // Add to beginning of table
-            if (tbody.firstChild) {
-                tbody.insertBefore(row, tbody.firstChild);
-            } else {
-                tbody.appendChild(row);
-            }
-            
-            // Keep only last 10 decisions
-            while (tbody.children.length > 10) {
-                tbody.removeChild(tbody.lastChild);
-            }
-            
-            // Update histogram
-            updateHistogram(result);
-            
-            console.log(`Decision: ${result} (${finalTrustScore.toFixed(2)})`);
-            
-            // Send to backend (optional)
-            try {
-                fetch(`${API_BASE}/auth/decision`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: 1,
-                        trust: finalTrustScore,
-                        result: result,
-                        note: note
-                    })
-                });
-            } catch (error) {
-                console.log("Backend not available, continuing locally");
-            }
+        } catch (error) {
+            console.error('❌ Stream update error:', error);
         }
         
-        console.log(`Update #${counter}: ${finalTrustScore.toFixed(2)}`);
-        
-    }, 2000); // Update every 2 seconds
+    }, 3000); // Update every 3 seconds
 }
 
 // Stop streaming
@@ -1364,11 +1884,16 @@ function stopStream() {
     
     // Update UI
     const statusElement = document.getElementById('status');
-    statusElement.textContent = 'stopped';
-    statusElement.className = 'status';
+    if (statusElement) {
+        statusElement.textContent = 'STOPPED';
+        statusElement.className = 'status';
+    }
     
-    document.getElementById('btnStart').classList.remove('ghost');
-    document.getElementById('btnStop').classList.add('ghost');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    
+    if (btnStart) btnStart.classList.remove('ghost');
+    if (btnStop) btnStop.classList.add('ghost');
     
     // Clear the update interval
     if (updateInterval) {
@@ -1377,35 +1902,73 @@ function stopStream() {
     }
 }
 
+// Logout function
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        window.location.href = '/login.html';
+    }
+}
 
+// Test API connectivity
+async function testAPIConnectivity() {
+    console.log('🔧 Testing API connectivity...');
+    
+    try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        console.log('✅ Health check:', data);
+        return true;
+    } catch (error) {
+        console.error('❌ Health check failed:', error);
+        return false;
+    }
+}
 
 // Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("🚀 DOM loaded, initializing...");
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log("🚀 User dashboard loaded");
     
-    // Check if Chart.js is available
-    if (typeof Chart === 'undefined') {
-        console.error("❌ Chart.js not loaded! Add: <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>");
-        return;
+    // Test API first
+    await testAPIConnectivity();
+    
+    // Check authentication
+    if (!checkAuth()) {
+        return; // Redirect will happen automatically
     }
+    
+    // Get user profile
+    const authenticated = await getUserProfile();
+    if (!authenticated) {
+        return; // Redirect will happen automatically
+    }
+    
+    console.log("✅ Starting dashboard for user:", currentUser.username);
     
     // Initialize charts
     initCharts();
     
-    // Add event listeners to buttons
-    const startBtn = document.getElementById('btnStart');
-    const stopBtn = document.getElementById('btnStop');
+    // Add event listeners
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnLogout = document.getElementById('btnLogout');
     
-    if (startBtn && stopBtn) {
-        startBtn.addEventListener('click', startStream);
-        stopBtn.addEventListener('click', stopStream);
-        console.log("✅ Button listeners added");
-        
-        // Set initial button states
-        stopBtn.classList.add('ghost');
-    } else {
-        console.error("❌ Buttons not found!");
-    }
+    if (btnStart) btnStart.addEventListener('click', startStream);
+    if (btnStop) btnStop.addEventListener('click', stopStream);
+    if (btnLogout) btnLogout.addEventListener('click', logout);
     
-    console.log("✅ System ready - click 'Start Stream' to begin");
+    // Set initial button states
+    if (btnStop) btnStop.classList.add('ghost');
+    
+    // Load initial trust score
+    await updateTrustScore();
+    
+    console.log("✅ Dashboard fully initialized");
+    
+    // Show welcome message
+    setTimeout(() => {
+        console.log("🎯 Dashboard ready! Click 'Start Stream' to begin monitoring.");
+    }, 1000);
 });
