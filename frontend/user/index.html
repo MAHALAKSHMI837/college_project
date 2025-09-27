@@ -1201,7 +1201,7 @@
 </body>
 </html> -->
 
-<!DOCTYPE html>
+ <!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -1324,7 +1324,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> 
 
     <footer class="small">
       Continuous 2FA Authentication System • Real-time Behavioral Biometrics
@@ -1333,5 +1333,79 @@
 </div>
 
 <script src="/user/app.js"></script>
+</body>
+</html>   -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous 2FA - User Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/user/user.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Continuous 2FA Authentication</h1>
+            <div class="user-info">
+                <span id="userWelcome">Welcome, User</span> | 
+                Status: <span id="status" class="status ready">READY</span> |
+                <button id="btnLogout" class="btn-logout">Logout</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <!-- Trust Panel -->
+            <div class="trust-panel">
+                <h2>Trust Score: <span id="trustScore">0.00</span></h2>
+                <div class="trust-gauge">
+                    <div class="gauge-fill" id="trustGauge"></div>
+                </div>
+                <div class="trust-description" id="trustDescription">
+                    Real-time authentication confidence level
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="btnStart" class="btn-start">Start Monitoring</button>
+                <button id="btnStop" class="btn-stop" disabled>Stop Monitoring</button>
+            </div>
+
+            <!-- Trust Chart -->
+            <div class="chart-container">
+                <h3>Trust Score History</h3>
+                <canvas id="trustChart"></canvas>
+            </div>
+
+            <!-- Decisions Table -->
+            <div class="decisions-panel">
+                <h3>Authentication Decisions</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Trust Score</th>
+                                <th>Decision</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="decisionsBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #666;">
+                                    No decisions yet. Start monitoring to begin.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/user/app.js"></script>
 </body>
 </html>

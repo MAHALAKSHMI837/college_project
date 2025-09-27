@@ -1,619 +1,11 @@
-# # # # # from flask import Flask, send_from_directory
-# # # # # from flask_cors import CORS
-# # # # # from backend.routes.user_routes import user_bp
-# # # # # from backend.routes.admin_routes import admin_bp
-# # # # # from backend.routes.trust_router import trust_bp  # ADD THIS LINE
-
-
-# # # # # from backend.routes.auth import auth_bp
-# # # # # import os
-
-# # # # # app = Flask(__name__)
-# # # # # CORS(app)
-
-# # # # # # Register Blueprints
-# # # # # app.register_blueprint(user_bp, url_prefix="/api/user")
-# # # # # app.register_blueprint(admin_bp, url_prefix="/api/admin")
-# # # # # app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# # # # # app.register_blueprint(trust_bp, url_prefix='/api/trust') 
-
-# # # # # # Serve frontend files
-# # # # # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# # # # # FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# # # # # @app.route("/")
-# # # # # def serve_user():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
-
-# # # # # @app.route("/login.html")
-# # # # # def serve_login():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
-
-# # # # # @app.route("/admin")
-# # # # # def serve_admin():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
-
-# # # # # @app.route("/user/<path:filename>")
-# # # # # def serve_user_static(filename):
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-
-# # # # # @app.route("/admin/<path:filename>")
-# # # # # def serve_admin_static(filename):
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-# # # # # # Test endpoints
-# # # # # @app.route("/api/health")
-# # # # # def health_check():
-# # # # #     return {"status": "healthy", "message": "Server is running"}
-
-# # # # # @app.route("/api/test-db")
-# # # # # def test_db():
-# # # # #     from backend.services.utils.db import get_db
-# # # # #     conn = get_db()
-# # # # #     if conn:
-# # # # #         conn.close()
-# # # # #         return {"database": "connected"}
-# # # # #     else:
-# # # # #         return {"database": "disconnected"}, 500
-
-# # # # # if __name__ == "__main__":
-# # # # #     print("🚀 Starting Continuous 2FA Authentication System...")
-# # # # #     print("📍 Server running on http://127.0.0.1:5000")
-# # # # #     print("👤 User dashboard: http://127.0.0.1:5000/user")
-# # # # #     print("👨‍💼 Admin dashboard: http://127.0.0.1:5000/admin")
-    
-# # # # #     app.run(host="0.0.0.0", port=5000, debug=True)
-
-# # # # # import os
-# # # # # import sys
-# # # # # from flask import Flask, send_from_directory
-# # # # # from flask_cors import CORS
-
-# # # # # # Add the backend directory to Python path
-# # # # # current_dir = os.path.dirname(os.path.abspath(__file__))
-# # # # # sys.path.insert(0, current_dir)
-
-# # # # # # Now import your blueprints
-# # # # # try:
-# # # # #     from routes.user_routes import user_bp
-# # # # #     from routes.admin_routes import admin_bp
-# # # # #     from routes.trust_router import trust_bp
-# # # # #     from routes.auth import auth_bp
-# # # # #     from backend.config import Config
-# # # # # except ImportError as e:
-# # # # #     print(f"Import error: {e}")
-# # # # #     print("Trying alternative import structure...")
-# # # # #     from backend.routes.user_routes import user_bp
-# # # # #     from backend.routes.admin_routes import admin_bp
-# # # # #     from backend.routes.trust_router import trust_bp
-# # # # #     from backend.routes.auth import auth_bp
-# # # # #     from backend.config import Config
-
-# # # # # app = Flask(__name__)
-
-# # # # # # Load configuration
-# # # # # app.config.from_object(Config)
-# # # # # CORS(app)
-
-# # # # # # Register Blueprints
-# # # # # app.register_blueprint(user_bp, url_prefix="/api/user")
-# # # # # app.register_blueprint(admin_bp, url_prefix="/api/admin")
-# # # # # app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# # # # # app.register_blueprint(trust_bp, url_prefix='/api/trust')
-
-# # # # # # Serve frontend files
-# # # # # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# # # # # FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# # # # # @app.route("/")
-# # # # # def serve_user():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
-
-# # # # # @app.route("/login.html")
-# # # # # def serve_login():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
-
-# # # # # @app.route("/admin")
-# # # # # def serve_admin():
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
-
-# # # # # @app.route("/user/<path:filename>")
-# # # # # def serve_user_static(filename):
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-
-# # # # # @app.route("/admin/<path:filename>")
-# # # # # def serve_admin_static(filename):
-# # # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-# # # # # # Test endpoints
-# # # # # @app.route("/api/health")
-# # # # # def health_check():
-# # # # #     return {"status": "healthy", "message": "Server is running"}
-
-# # # # # @app.route("/api/test-db")
-# # # # # def test_db():
-# # # # #     try:
-# # # # #         from services.utils.db import get_db
-# # # # #         conn = get_db()
-# # # # #         if conn:
-# # # # #             conn.close()
-# # # # #             return {"database": "connected"}
-# # # # #         else:
-# # # # #             return {"database": "disconnected"}, 500
-# # # # #     except Exception as e:
-# # # # #         return {"database": "error", "message": str(e)}, 500
-
-# # # # # if __name__ == "__main__":
-# # # # #     print("🚀 Starting Continuous 2FA Authentication System...")
-# # # # #     print("📍 Server running on http://127.0.0.1:5000")
-# # # # #     print("👤 User dashboard: http://127.0.0.1:5000/")
-# # # # #     print("👨‍💼 Admin dashboard: http://127.0.0.1:5000/admin")
-# # # # #     print("🔧 Health check: http://127.0.0.1:5000/api/health")
-    
-# # # # #     app.run(host="0.0.0.0", port=5000, debug=True)
-
-# # # # import os
-# # # # import sys
-# # # # from flask import Flask, send_from_directory
-# # # # from flask_cors import CORS
-
-# # # # # Add the current directory to Python path
-# # # # current_dir = os.path.dirname(os.path.abspath(__file__))
-# # # # sys.path.insert(0, current_dir)
-
-# # # # app = Flask(__name__)
-
-# # # # # Try to import configuration
-# # # # try:
-# # # #     from config import Config
-# # # #     app.config.from_object(Config)
-# # # #     print("✅ Configuration loaded successfully")
-# # # # except ImportError as e:
-# # # #     print(f"⚠️  Config import warning: {e}")
-# # # #     # Set some basic config manually
-# # # #     app.config['SECRET_KEY'] = 'fallback-secret-key'
-
-# # # # CORS(app)
-
-# # # # # Import and register blueprints
-# # # # try:
-# # # #     from routes.user_routes import user_bp
-# # # #     from routes.admin_routes import admin_bp
-# # # #     from routes.trust_router import trust_bp
-# # # #     from routes.auth import auth_bp
-    
-# # # #     app.register_blueprint(user_bp, url_prefix="/api/user")
-# # # #     app.register_blueprint(admin_bp, url_prefix="/api/admin")
-# # # #     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# # # #     app.register_blueprint(trust_bp, url_prefix='/api/trust')
-# # # #     print("✅ All blueprints registered successfully")
-    
-# # # # except ImportError as e:
-# # # #     print(f"❌ Error importing blueprints: {e}")
-
-# # # # # Serve frontend files
-# # # # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# # # # FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# # # # @app.route("/")
-# # # # def serve_user():
-# # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
-
-# # # # @app.route("/login.html")
-# # # # def serve_login():
-# # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
-
-# # # # @app.route("/admin")
-# # # # def serve_admin():
-# # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
-
-# # # # @app.route("/user/<path:filename>")
-# # # # def serve_user_static(filename):
-# # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-
-# # # # @app.route("/admin/<path:filename>")
-# # # # def serve_admin_static(filename):
-# # # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-# # # # # Test endpoints
-# # # # @app.route("/api/health")
-# # # # def health_check():
-# # # #     return {"status": "healthy", "message": "Server is running"}
-
-# # # # if __name__ == "__main__":
-# # # #     print("🚀 Starting Continuous 2FA Authentication System...")
-# # # #     print("📍 Server running on http://127.0.0.1:5000")
-    
-# # # #     app.run(host="0.0.0.0", port=5000, debug=True)
-
-# # # import os
-# # # import sys
-# # # from flask import Flask, send_from_directory, jsonify
-# # # from flask_cors import CORS
-
-# # # # Add the current directory to Python path
-# # # current_dir = os.path.dirname(os.path.abspath(__file__))
-# # # sys.path.insert(0, current_dir)
-
-# # # app = Flask(__name__)
-
-# # # # Try to import configuration
-# # # try:
-# # #     from config import Config
-# # #     app.config.from_object(Config)
-# # #     print("✅ Configuration loaded successfully")
-# # # except ImportError as e:
-# # #     print(f"⚠️  Config import warning: {e}")
-# # #     # Set some basic config manually
-# # #     app.config['SECRET_KEY'] = 'fallback-secret-key-for-development'
-
-# # # CORS(app)
-
-# # # # Import and register blueprints
-# # # try:
-# # #     from routes.user_routes import user_bp
-# # #     app.register_blueprint(user_bp, url_prefix="/api/user")
-# # #     print("✅ User routes registered")
-# # # except ImportError as e:
-# # #     print(f"❌ User routes error: {e}")
-
-# # # try:
-# # #     from routes.admin_routes import admin_bp
-# # #     app.register_blueprint(admin_bp, url_prefix="/api/admin")
-# # #     print("✅ Admin routes registered")
-# # # except ImportError as e:
-# # #     print(f"❌ Admin routes error: {e}")
-
-# # # try:
-# # #     from routes.auth import auth_bp
-# # #     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# # #     print("✅ Auth routes registered")
-# # # except ImportError as e:
-# # #     print(f"❌ Auth routes error: {e}")
-
-# # # try:
-# # #     from routes.trust_router import trust_bp
-# # #     app.register_blueprint(trust_bp, url_prefix='/api/trust')
-# # #     print("✅ Trust routes registered")
-# # # except ImportError as e:
-# # #     print(f"❌ Trust routes error: {e}")
-
-# # # # Serve frontend files
-# # # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# # # FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# # # @app.route("/")
-# # # def serve_user():
-# # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
-
-# # # @app.route("/login.html")
-# # # def serve_login():
-# # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
-
-# # # @app.route("/admin")
-# # # def serve_admin():
-# # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
-
-# # # @app.route("/user/<path:filename>")
-# # # def serve_user_static(filename):
-# # #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-
-# # # @app.route("/admin/<path:filename>")
-# # # def serve_admin_static(filename):
-# # #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-# # # # Test endpoints
-# # # @app.route("/api/health")
-# # # def health_check():
-# # #     return jsonify({"status": "healthy", "message": "Server is running"})
-
-# # # @app.route("/api/debug/endpoints")
-# # # def debug_endpoints():
-# # #     """Show all registered endpoints"""
-# # #     endpoints = []
-# # #     for rule in app.url_map.iter_rules():
-# # #         if rule.endpoint != 'static':
-# # #             endpoints.append({
-# # #                 'endpoint': rule.endpoint,
-# # #                 'methods': list(rule.methods),
-# # #                 'path': str(rule)
-# # #             })
-# # #     return jsonify(endpoints)
-
-# # # # Error handlers
-# # # @app.errorhandler(404)
-# # # def not_found(error):
-# # #     return jsonify({"error": "Endpoint not found"}), 404
-
-# # # @app.errorhandler(500)
-# # # def internal_error(error):
-# # #     return jsonify({"error": "Internal server error"}), 500
-
-# # # if __name__ == "__main__":
-# # #     print("🚀 Starting Continuous 2FA Authentication System...")
-# # #     print("📍 Server running on http://127.0.0.1:5000")
-# # #     print("🔧 Debug endpoints:")
-# # #     print("   - http://127.0.0.1:5000/api/health")
-# # #     print("   - http://127.0.0.1:5000/api/auth/test") 
-# # #     print("   - http://127.0.0.1:5000/api/trust/test")
-# # #     print("   - http://127.0.0.1:5000/api/debug/endpoints")
-    
-# # #     app.run(host="0.0.0.0", port=5000, debug=True)
-
-# # import os
-# # import sys
-# # from flask import Flask, send_from_directory, jsonify
-# # from flask_cors import CORS
-
-# # # Add the current directory to Python path
-# # current_dir = os.path.dirname(os.path.abspath(__file__))
-# # sys.path.insert(0, current_dir)
-
-# # app = Flask(__name__)
-# # CORS(app)
-
-# # print("🔧 Starting application initialization...")
-
-# # # Try to import configuration
-# # try:
-# #     from config import Config
-# #     app.config.from_object(Config)
-# #     print("✅ Configuration loaded successfully")
-# # except ImportError as e:
-# #     print(f"⚠️  Config import warning: {e}")
-# #     app.config['SECRET_KEY'] = 'fallback-secret-key'
-
-# # # Manual route registration to avoid import issues
-# # @app.route("/api/health")
-# # def health_check():
-# #     return jsonify({"status": "healthy", "message": "Server is running"})
-
-# # @app.route("/api/auth/test")
-# # def auth_test():
-# #     return jsonify({"message": "Auth test endpoint is working!"})
-
-# # @app.route("/api/trust/test") 
-# # def trust_test():
-# #     return jsonify({"message": "Trust test endpoint is working!", "trust_score": 0.75})
-
-# # @app.route("/api/debug/endpoints")
-# # def debug_endpoints():
-# #     endpoints = []
-# #     for rule in app.url_map.iter_rules():
-# #         if rule.endpoint != 'static':
-# #             endpoints.append({
-# #                 'endpoint': rule.endpoint,
-# #                 'methods': list(rule.methods),
-# #                 'path': str(rule)
-# #             })
-# #     return jsonify(endpoints)
-
-# # # Try to import and register blueprints with better error handling
-# # try:
-# #     print("🔄 Attempting to import routes...")
-    
-# #     # Try different import styles
-# #     try:
-# #         from routes.auth import auth_bp
-# #         app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# #         print("✅ Auth routes registered via 'routes.auth'")
-# #     except ImportError as e:
-# #         print(f"❌ routes.auth import failed: {e}")
-# #         try:
-# #             from backend.routes.auth import auth_bp
-# #             app.register_blueprint(auth_bp, url_prefix="/api/auth")
-# #             print("✅ Auth routes registered via 'backend.routes.auth'")
-# #         except ImportError as e:
-# #             print(f"❌ backend.routes.auth import failed: {e}")
-
-# #     try:
-# #         from routes.trust_router import trust_bp
-# #         app.register_blueprint(trust_bp, url_prefix="/api/trust")
-# #         print("✅ Trust routes registered via 'routes.trust_router'")
-# #     except ImportError as e:
-# #         print(f"❌ routes.trust_router import failed: {e}")
-# #         try:
-# #             from backend.routes.trust_router import trust_bp
-# #             app.register_blueprint(trust_bp, url_prefix="/api/trust")
-# #             print("✅ Trust routes registered via 'backend.routes.trust_router'")
-# #         except ImportError as e:
-# #             print(f"❌ backend.routes.trust_router import failed: {e}")
-
-# # except Exception as e:
-# #     print(f"❌ Route registration error: {e}")
-
-# # # Serve frontend files
-# # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# # FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# # @app.route("/")
-# # def serve_user():
-# #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
-
-# # @app.route("/login.html")
-# # def serve_login():
-# #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
-
-# # @app.route("/admin")
-# # def serve_admin():
-# #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
-
-# # @app.route("/user/<path:filename>")
-# # def serve_user_static(filename):
-# #     return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-
-# # @app.route("/admin/<path:filename>")
-# # def serve_admin_static(filename):
-# #     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-# # if __name__ == "__main__":
-# #     print("🚀 Starting Continuous 2FA Authentication System...")
-# #     print("📍 Server running on http://127.0.0.1:5000")
-# #     print("🔧 Testing endpoints:")
-# #     print("   - http://127.0.0.1:5000/api/health")
-# #     print("   - http://127.0.0.1:5000/api/auth/test")
-# #     print("   - http://127.0.0.1:5000/api/trust/test")
-# #     print("   - http://127.0.0.1:5000/api/debug/endpoints")
-    
-# #     app.run(host="0.0.0.0", port=5000, debug=True)
-
-# import os
-# import sys
-# from flask import Flask, send_from_directory, jsonify
-# from flask_cors import CORS
-
-# # Add the current directory to Python path
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# parent_dir = os.path.dirname(current_dir)
-# sys.path.insert(0, parent_dir)
-# sys.path.insert(0, current_dir)
-
-# app = Flask(__name__)
-# CORS(app)
-
-# print("🔧 Starting application initialization...")
-# print(f"📁 Current directory: {current_dir}")
-# print(f"📁 Parent directory: {parent_dir}")
-
-# # Basic configuration
-# app.config['SECRET_KEY'] = 'fallback-secret-key-for-development'
-
-# # Manual test endpoints that will always work
-# @app.route("/api/health")
-# def health_check():
-#     return jsonify({"status": "healthy", "message": "Server is running"})
-
-# @app.route("/api/auth/login", methods=["POST", "GET"])
-# def manual_auth_login():
-#     """Manual login endpoint that always works"""
-#     return jsonify({
-#         "success": True, 
-#         "message": "Manual login endpoint working!",
-#         "token": "manual-test-token",
-#         "user_id": 1,
-#         "username": "testuser"
-#     })
-
-# @app.route("/api/admin/users", methods=["GET"])
-# def manual_admin_users():
-#     return jsonify({"users": [], "message": "Manual admin users endpoint"})
-
-# @app.route("/api/admin/decisions", methods=["GET"])
-# def manual_admin_decisions():
-#     return jsonify({"decisions": [], "message": "Manual admin decisions endpoint"})
-
-# @app.route("/api/admin/stats", methods=["GET"])
-# def manual_admin_stats():
-#     return jsonify({"stats": {}, "message": "Manual admin stats endpoint"})
-
-# @app.route("/api/trust/score", methods=["POST"])
-# def manual_trust_score():
-#     return jsonify({"trust_score": 0.85, "confidence": "high"})
-
-# # Try to import and register blueprints
-# try:
-#     print("🔄 Attempting to import routes...")
-    
-#     # Try absolute imports first
-#     try:
-#         from backend.routes.auth import auth_bp
-#         app.register_blueprint(auth_bp, url_prefix="/api/auth")
-#         print("✅ Auth routes registered via 'backend.routes.auth'")
-#     except ImportError as e:
-#         print(f"❌ backend.routes.auth import failed: {e}")
-#         try:
-#             from routes.auth import auth_bp
-#             app.register_blueprint(auth_bp, url_prefix="/api/auth")
-#             print("✅ Auth routes registered via 'routes.auth'")
-#         except ImportError as e:
-#             print(f"❌ routes.auth import failed: {e}")
-
-#     try:
-#         from backend.routes.trust_router import trust_bp
-#         app.register_blueprint(trust_bp, url_prefix="/api/trust")
-#         print("✅ Trust routes registered via 'backend.routes.trust_router'")
-#     except ImportError as e:
-#         print(f"❌ backend.routes.trust_router import failed: {e}")
-#         try:
-#             from routes.trust_router import trust_bp
-#             app.register_blueprint(trust_bp, url_prefix="/api/trust")
-#             print("✅ Trust routes registered via 'routes.trust_router'")
-#         except ImportError as e:
-#             print(f"❌ routes.trust_router import failed: {e}")
-
-#     try:
-#         from backend.routes.admin_routes import admin_bp
-#         app.register_blueprint(admin_bp, url_prefix="/api/admin")
-#         print("✅ Admin routes registered via 'backend.routes.admin_routes'")
-#     except ImportError as e:
-#         print(f"❌ backend.routes.admin_routes import failed: {e}")
-#         try:
-#             from routes.admin_routes import admin_bp
-#             app.register_blueprint(admin_bp, url_prefix="/api/admin")
-#             print("✅ Admin routes registered via 'routes.admin_routes'")
-#         except ImportError as e:
-#             print(f"❌ routes.admin_routes import failed: {e}")
-
-# except Exception as e:
-#     print(f"❌ Route registration error: {e}")
-
-# @app.route("/api/debug/endpoints")
-# def debug_endpoints():
-#     endpoints = []
-#     for rule in app.url_map.iter_rules():
-#         if rule.endpoint != 'static':
-#             endpoints.append({
-#                 'endpoint': rule.endpoint,
-#                 'methods': list(rule.methods),
-#                 'path': str(rule)
-#             })
-#     return jsonify(endpoints)
-
-# # Serve frontend files
-# @app.route("/")
-# def serve_user():
-#     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-#     return send_from_directory(os.path.join(frontend_dir, "user"), "index.html")
-
-# @app.route("/login.html")
-# def serve_login():
-#     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-#     return send_from_directory(os.path.join(frontend_dir, "user"), "login.html")
-
-# @app.route("/admin")
-# def serve_admin():
-#     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-#     return send_from_directory(os.path.join(frontend_dir, "admin"), "index.html")
-
-# @app.route("/<path:filename>")
-# def serve_static(filename):
-#     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-#     # Try user directory first
-#     try:
-#         return send_from_directory(os.path.join(frontend_dir, "user"), filename)
-#     except:
-#         # Then try admin directory
-#         try:
-#             return send_from_directory(os.path.join(frontend_dir, "admin"), filename)
-#         except:
-#             return "File not found", 404
-
-# if __name__ == "__main__":
-#     print("🚀 Starting Continuous 2FA Authentication System...")
-#     print("📍 Server running on http://127.0.0.1:5000")
-#     print("🔧 Available endpoints:")
-    
-#     # Print available endpoints
-#     for rule in app.url_map.iter_rules():
-#         if rule.endpoint != 'static' and rule.rule.startswith('/api'):
-#             print(f"   - {list(rule.methods)} {rule.rule}")
-    
-#     app.run(host="0.0.0.0", port=5000, debug=True)
-
 import os
 import sys
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
+import jwt
+import datetime
+import sqlite3
+from pathlib import Path
 
 # Add the current directory to Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -624,113 +16,515 @@ sys.path.insert(0, current_dir)
 app = Flask(__name__)
 CORS(app)
 
-print("🔧 Starting application initialization...")
+# Configuration
+app.config['SECRET_KEY'] = 'continuous-2fa-super-secret-key-2024'
+app.config['DATABASE_PATH'] = os.path.join(current_dir, 'database', 'users.db')
+
+print("🔧 Starting Continuous 2FA Authentication System...")
 print(f"📁 Current directory: {current_dir}")
+print(f"📁 Parent directory: {parent_dir}")
 
-# Basic configuration
-app.config['SECRET_KEY'] = 'your_super_secure_secret_key_here_make_it_very_long_and_random'
+# Database setup
+def init_database():
+    """Initialize the SQLite database"""
+    db_path = app.config['DATABASE_PATH']
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Create users table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            email TEXT,
+            device TEXT DEFAULT 'Unknown Device',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create decisions table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS decisions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            trust_score REAL NOT NULL,
+            decision TEXT NOT NULL,
+            note TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Insert sample user if doesn't exist
+    cursor.execute('''
+        INSERT OR IGNORE INTO users (username, password_hash, email, device) 
+        VALUES (?, ?, ?, ?)
+    ''', ('sample', 'password123', 'sample@example.com', 'Sample Device'))
+    
+    conn.commit()
+    conn.close()
+    print("✅ Database initialized successfully")
 
-# Manual test endpoints that will always work
-@app.route("/api/health")
-def health_check():
-    return jsonify({"status": "healthy", "message": "Server is running"})
+# Initialize database
+init_database()
 
-@app.route("/api/auth/test", methods=["GET"])
-def manual_auth_test():
-    return jsonify({"message": "Auth test endpoint is working!"})
+def get_db_connection():
+    """Get database connection"""
+    try:
+        conn = sqlite3.connect(app.config['DATABASE_PATH'])
+        conn.row_factory = sqlite3.Row
+        return conn
+    except sqlite3.Error as e:
+        print(f"❌ Database error: {e}")
+        return None
+
+# ==================== AUTHENTICATION ROUTES ====================
 
 @app.route("/api/auth/login", methods=["POST"])
-def manual_auth_login():
-    """Manual login endpoint that always works"""
-    return jsonify({
-        "success": True, 
-        "message": "Login successful!",
-        "token": "test-jwt-token-12345",
-        "user_id": 1,
-        "username": "sample"
-    })
+def login():
+    """User login endpoint"""
+    try:
+        if not request.is_json:
+            return jsonify({"error": "Request must be JSON"}), 400
+            
+        data = request.get_json() or {}
+        username = data.get("username", "").strip()
+        password = data.get("password", "")
+        
+        print(f"🔐 Login attempt for user: '{username}'")
+        
+        # Simple authentication for demo (in production, use proper hashing)
+        if username == "sample" and password == "password123":
+            # Generate JWT token
+            token = jwt.encode({
+                'user_id': 1,
+                'username': username,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            print(f"✅ Login successful for: {username}")
+            
+            return jsonify({
+                "success": True,
+                "message": "Login successful",
+                "token": token,
+                "user_id": 1,
+                "username": username,
+                "device": "Current Device"
+            })
+        else:
+            print("❌ Invalid credentials")
+            return jsonify({
+                "success": False,
+                "message": "Invalid credentials. Use: username='sample', password='password123'"
+            }), 401
+            
+    except Exception as e:
+        print(f"❌ Login error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/api/admin/users", methods=["GET"])
-def manual_admin_users():
-    return jsonify({"users": [
-        {"id": 1, "username": "sample", "status": "active"},
-        {"id": 2, "username": "admin", "status": "active"}
-    ]})
+@app.route("/api/auth/register", methods=["POST"])
+def register():
+    """User registration endpoint"""
+    try:
+        data = request.get_json() or {}
+        username = data.get("username", "").strip()
+        password = data.get("password", "")
+        email = data.get("email", "")
+        
+        if not username or not password:
+            return jsonify({"error": "Username and password are required"}), 400
+        
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database error"}), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Check if username exists
+            cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+            if cursor.fetchone():
+                return jsonify({"error": "Username already exists"}), 400
+            
+            # Create user (in production, hash the password)
+            cursor.execute(
+                "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)",
+                (username, password, email)
+            )
+            user_id = cursor.lastrowid
+            conn.commit()
+            
+            # Generate token
+            token = jwt.encode({
+                'user_id': user_id,
+                'username': username,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            return jsonify({
+                "success": True,
+                "message": "User registered successfully",
+                "token": token,
+                "user_id": user_id,
+                "username": username
+            }), 201
+            
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-@app.route("/api/admin/decisions", methods=["GET"])
-def manual_admin_decisions():
-    return jsonify({"decisions": [
-        {"id": 1, "user_id": 1, "trust_score": 0.85, "result": "ALLOW"}
-    ]})
+@app.route("/api/auth/decision", methods=["POST"])
+def make_decision():
+    """Save authentication decision"""
+    try:
+        data = request.get_json() or {}
+        user_id = data.get("user_id")
+        trust_score = data.get("trust")
+        
+        if not user_id or trust_score is None:
+            return jsonify({"error": "User ID and trust score are required"}), 400
+        
+        # Determine decision based on trust score
+        if trust_score >= 0.7:
+            decision = "ALLOW"
+            note = "Normal behavior pattern detected"
+        elif trust_score >= 0.4:
+            decision = "CHALLENGE"
+            note = "Additional verification required"
+        else:
+            decision = "BLOCK"
+            note = "Suspicious activity detected"
+        
+        # Save to database
+        conn = get_db_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO decisions (user_id, trust_score, decision, note) VALUES (?, ?, ?, ?)",
+                    (user_id, trust_score, decision, note)
+                )
+                conn.commit()
+                print(f"✅ Decision saved: {decision} (Trust: {trust_score})")
+            finally:
+                conn.close()
+        
+        return jsonify({
+            "success": True,
+            "result": decision,
+            "note": note,
+            "trust": trust_score,
+            "user_id": user_id
+        })
+        
+    except Exception as e:
+        print(f"❌ Decision error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/api/admin/stats", methods=["GET"])
-def manual_admin_stats():
-    return jsonify({
-        "total_users": 2,
-        "total_decisions": 5,
-        "average_trust": 0.87
-    })
+# ==================== TRUST ROUTES ====================
 
 @app.route("/api/trust/score", methods=["POST"])
-def manual_trust_score():
-    return jsonify({"trust_score": 0.85, "confidence": "high"})
+def calculate_trust_score():
+    """Calculate trust score based on behavioral data"""
+    try:
+        data = request.get_json() or {}
+        user_id = data.get("user_id")
+        behavioral_data = data.get("behavioral_data", {})
+        
+        print(f"📊 Trust calculation request for user {user_id}")
+        print(f"📈 Behavioral data: {behavioral_data}")
+        
+        # Mock trust score calculation
+        base_score = 0.7  # Base trust level
+        
+        # Adjust based on behavioral data (simplified for demo)
+        if behavioral_data.get('typing_metrics'):
+            base_score += 0.1
+        if behavioral_data.get('mouse_metrics'):
+            base_score += 0.1
+        if behavioral_data.get('context'):
+            base_score += 0.05
+        
+        # Add some randomness for demo
+        import random
+        trust_score = base_score + (random.random() * 0.2 - 0.1)  # ±0.1 variation
+        trust_score = max(0.1, min(0.99, trust_score))  # Clamp between 0.1-0.99
+        
+        # Determine confidence
+        if trust_score > 0.7:
+            confidence = 'high'
+        elif trust_score > 0.4:
+            confidence = 'medium'
+        else:
+            confidence = 'low'
+        
+        print(f"✅ Trust score calculated: {trust_score:.2f} ({confidence})")
+        
+        return jsonify({
+            'trust_score': round(trust_score, 2),
+            'confidence': confidence,
+            'status': 'success',
+            'user_id': user_id,
+            'timestamp': datetime.datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Trust calculation error: {e}")
+        return jsonify({'error': str(e), 'trust_score': 0.5}), 500
 
 @app.route("/api/trust/test", methods=["GET"])
-def manual_trust_test():
-    return jsonify({"message": "Trust test endpoint working!", "trust_score": 0.75})
+def trust_test():
+    """Test endpoint for trust routes"""
+    return jsonify({
+        'message': 'Trust API is working!', 
+        'status': 'success',
+        'test_trust_score': 0.75,
+        'timestamp': datetime.datetime.utcnow().isoformat()
+    })
 
-# Serve frontend files with proper static handling
-FRONTEND_DIR = os.path.join(parent_dir, "frontend")
+# ==================== ADMIN ROUTES ====================
 
-@app.route("/")
-def serve_user():
-    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
+@app.route("/api/admin/users", methods=["GET"])
+def get_all_users():
+    """Get all users (admin function)"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database error"}), 500
+        
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, email, device, created_at FROM users ORDER BY created_at DESC")
+        users = []
+        for row in cursor.fetchall():
+            users.append({
+                "id": row[0],
+                "username": row[1],
+                "email": row[2],
+                "device": row[3],
+                "created_at": row[4]
+            })
+        
+        conn.close()
+        return jsonify(users)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-@app.route("/login.html")
-def serve_login():
-    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
+@app.route("/api/admin/decisions", methods=["GET"])
+def get_all_decisions():
+    """Get all decisions (admin function)"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database error"}), 500
+        
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT d.id, u.username, d.trust_score, d.decision, d.note, d.created_at 
+            FROM decisions d 
+            JOIN users u ON d.user_id = u.id 
+            ORDER BY d.created_at DESC
+            LIMIT 100
+        ''')
+        
+        decisions = []
+        for row in cursor.fetchall():
+            decisions.append({
+                "id": row[0],
+                "username": row[1],
+                "trust_score": row[2],
+                "decision": row[3],
+                "note": row[4],
+                "created_at": row[5]
+            })
+        
+        conn.close()
+        return jsonify(decisions)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-@app.route("/admin")
-def serve_admin():
-    return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
+@app.route("/api/admin/stats", methods=["GET"])
+def get_system_stats():
+    """Get system statistics"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database error"}), 500
+        
+        cursor = conn.cursor()
+        
+        # User count
+        cursor.execute("SELECT COUNT(*) FROM users")
+        user_count = cursor.fetchone()[0]
+        
+        # Decision counts
+        cursor.execute("SELECT decision, COUNT(*) FROM decisions GROUP BY decision")
+        decision_counts = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        # Average trust score
+        cursor.execute("SELECT AVG(trust_score) FROM decisions")
+        avg_trust = cursor.fetchone()[0] or 0
+        
+        conn.close()
+        
+        return jsonify({
+            "total_users": user_count,
+            "total_decisions": sum(decision_counts.values()),
+            "decision_breakdown": decision_counts,
+            "average_trust_score": round(avg_trust, 2),
+            "system_status": "operational"
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# Serve static files (CSS, JS, images)
-@app.route("/static/<path:filename>")
-def serve_static(filename):
-    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
+# ==================== HEALTH & DEBUG ROUTES ====================
 
-@app.route("/user/<path:filename>")
-def serve_user_files(filename):
-    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        "status": "healthy", 
+        "message": "Continuous 2FA System is running",
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "version": "1.0.0"
+    })
 
-@app.route("/admin/static/<path:filename>")
-def serve_admin_static(filename):
-    return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-
-@app.route("/api/debug/endpoints")
+@app.route("/api/debug/endpoints", methods=["GET"])
 def debug_endpoints():
+    """Show all registered endpoints"""
     endpoints = []
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
             endpoints.append({
                 'endpoint': rule.endpoint,
-                'methods': list(rule.methods),
+                'methods': list(rule.methods),#type: ignore
                 'path': str(rule)
             })
     return jsonify(endpoints)
 
+@app.route("/api/debug/database", methods=["GET"])
+def debug_database():
+    """Debug database info"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database connection failed"}), 500
+        
+        cursor = conn.cursor()
+        
+        # Table info
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        # Row counts
+        table_counts = {}
+        for table in tables:
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
+            table_counts[table] = cursor.fetchone()[0]
+        
+        conn.close()
+        
+        return jsonify({
+            "database_file": app.config['DATABASE_PATH'],
+            "tables": tables,
+            "row_counts": table_counts,
+            "file_exists": os.path.exists(app.config['DATABASE_PATH'])
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==================== FRONTEND SERVING ====================
+
+FRONTEND_DIR = os.path.join(parent_dir, "frontend")
+
+@app.route("/")
+def serve_user_dashboard():
+    """Serve user dashboard"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "index.html")
+
+@app.route("/login.html")
+def serve_login():
+    """Serve login page"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
+
+@app.route("/admin")
+def serve_admin_dashboard():
+    """Serve admin dashboard"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
+
+# Serve static files
+@app.route("/<path:filename>")
+def serve_static(filename):
+    """Serve static files from user or admin directories"""
+    # Try user directory first
+    user_path = os.path.join(FRONTEND_DIR, "user", filename)
+    admin_path = os.path.join(FRONTEND_DIR, "admin", filename)
+    
+    if os.path.exists(user_path):
+        return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
+    elif os.path.exists(admin_path):
+        return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
+    else:
+        return "File not found", 404
+
+@app.route("/user/<path:filename>")
+def serve_user_files(filename):
+    """Serve user static files"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
+
+@app.route("/admin/<path:filename>")
+def serve_admin_files(filename):
+    """Serve admin static files"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
+
+# ==================== ERROR HANDLERS ====================
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Endpoint not found", "path": request.path}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Internal server error"}), 500
+
+# ==================== MAIN APPLICATION ====================
+
 if __name__ == "__main__":
-    print("🚀 Starting Continuous 2FA Authentication System...")
-    print("📍 Server running on http://127.0.0.1:5000")
-    print("🔧 Available endpoints:")
+    print("\n" + "="*60)
+    print("🚀 CONTINUOUS 2FA AUTHENTICATION SYSTEM")
+    print("="*60)
     
-    # Print available endpoints
-    for rule in app.url_map.iter_rules():
-        if rule.endpoint != 'static' and rule.rule.startswith('/api'):
-            print(f"   - {list(rule.methods)} {rule.rule}")
+    print("\n🌐 APPLICATION URLs:")
+    print("   📍 User Dashboard: http://127.0.0.1:5000/")
+    print("   🔐 Login Page:     http://127.0.0.1:5000/login.html")
+    print("   👨‍💼 Admin Panel:    http://127.0.0.1:5000/admin")
     
-    print("\n🌐 Frontend URLs:")
-    print("   - User login: http://127.0.0.1:5000/")
-    print("   - Admin panel: http://127.0.0.1:5000/admin")
+    print("\n🔧 API ENDPOINTS:")
+    print("   ✅ Health Check:    http://127.0.0.1:5000/api/health")
+    print("   🔐 Auth Login:      http://127.0.0.1:5000/api/auth/login")
+    print("   📊 Trust Score:     http://127.0.0.1:5000/api/trust/score")
+    print("   👥 Admin Users:     http://127.0.0.1:5000/api/admin/users")
+    print("   📈 Admin Decisions: http://127.0.0.1:5000/api/admin/decisions")
+    
+    print("\n🐛 DEBUG ENDPOINTS:")
+    print("   🔍 All Endpoints:   http://127.0.0.1:5000/api/debug/endpoints")
+    print("   💾 Database Info:   http://127.0.0.1:5000/api/debug/database")
+    
+    print("\n🔑 TEST CREDENTIALS:")
+    print("   👤 Username: sample")
+    print("   🔒 Password: password123")
+    
+    print("\n" + "="*60)
+    print("✅ Server starting on http://127.0.0.1:5000")
+    print("="*60 + "\n")
     
     app.run(host="0.0.0.0", port=5000, debug=True)
