@@ -1,122 +1,4 @@
-/* /* 
-   
-body, h1, h2, table {
-  margin: 0;
-  padding: 0; 
-  font-family: Arial, sans-serif;
-  color: #222;
-  background-color: #f4f6f8;
-}
-
-
-body {
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #333;
-}
-
-section {
-  margin-bottom: 40px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  margin-bottom: 15px;
-  color: #0056b3;
-  font-size: 20px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 5px;
-}
-
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-thead {
-  background-color: #0056b3;
-  color: #fff;
-}
-
-th, td {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-tbody tr:hover {
-  background-color: #f1f7ff;
-}
-
-
-button {
-  background-color: #0056b3;
-  border: none;
-  color: white;
-  padding: 8px 14px;
-  margin: 5px 0;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-button:hover {
-  background-color: #003d80;
-}
-
-
-@media (max-width: 768px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
-    width: 100%;
-  }
-
-  thead {
-    display: none;
-  }
-
-  tr {
-    margin-bottom: 15px;
-    background: #fff;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  }
-
-  td {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    border: none;
-    border-bottom: 1px solid #eee;
-  }
-
-  td:last-child {
-    border-bottom: none;
-  }
-
-  td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    margin-right: 10px;
-    color: #333;
-  }
-} */
-
-   /* :root {
+ :root {
       --bg: #0b1220;
       --panel: #101a2b;
       --muted: #7b8aa0;
@@ -264,8 +146,10 @@ button:hover {
       text-align: right;
       margin-top: 10px;
     }
-   */ 
-   * {
+  
+  
+/*=======================================================================================================*/
+   /* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -285,7 +169,7 @@ body {
     padding: 20px;
 }
 
-/* Header */
+/* Header 
 header {
     background: rgba(255, 255, 255, 0.95);
     padding: 20px 30px;
@@ -316,7 +200,7 @@ header h1 {
     font-weight: 500;
 }
 
-/* Status Indicators */
+/* Status Indicators 
 .status {
     padding: 8px 20px;
     border-radius: 25px;
@@ -342,14 +226,14 @@ header h1 {
     box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
 }
 
-/* Admin Dashboard */
+/* Admin Dashboard 
 .admin-dashboard {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
 
-/* Stats Grid */
+/* Stats Grid 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -388,7 +272,7 @@ header h1 {
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Panels */
+/* Panels 
 .panel {
     background: rgba(255, 255, 255, 0.95);
     padding: 30px;
@@ -405,7 +289,7 @@ header h1 {
     font-weight: 600;
 }
 
-/* Tables */
+/* Tables 
 .table-container {
     overflow-x: auto;
     margin-top: 15px;
@@ -443,7 +327,7 @@ tr:hover {
     transition: background 0.2s ease;
 }
 
-/* Decision Colors */
+/* Decision Colors 
 .decision-allow { 
     color: #27ae60; 
     font-weight: bold;
@@ -471,7 +355,7 @@ tr:hover {
     display: inline-block;
 }
 
-/* Charts Grid */
+/* Charts Grid 
 .charts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -497,7 +381,7 @@ tr:hover {
     height: 320px !important;
 }
 
-/* Buttons */
+/* Buttons 
 button {
     padding: 12px 25px;
     border: none;
@@ -522,7 +406,7 @@ button {
     box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
 }
 
-/* Responsive Design */
+/* Responsive Design 
 @media (max-width: 1200px) {
     .charts-grid {
         grid-template-columns: 1fr;
@@ -573,7 +457,7 @@ button {
     }
 }
 
-/* Loading Animation */
+/* Loading Animation 
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -582,4 +466,4 @@ button {
 
 .loading {
     animation: pulse 1.5s ease-in-out infinite;
-}
+} */

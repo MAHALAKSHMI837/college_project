@@ -635,7 +635,7 @@ hr{border:0;border-top:1px dashed #26406f;margin:10px 0}
       font-weight: 600;
     } */
 
-    /* :root {
+   :root {
   --bg: #0b1220;
   --panel: #101a2b;
   --muted: #7b8aa0;
@@ -865,7 +865,7 @@ hr {
   min-width: 240px;
 }
 
-/* New styles for user info and logout 
+/* New styles for user info and logout */
 .user-info {
   display: flex;
   align-items: center;
@@ -878,7 +878,7 @@ hr {
   color: #b9c6db;
 }
 
-/* Responsive design 
+/* Responsive design */
 @media (max-width: 1200px) {
   .grid.cols-3 {
     grid-template-columns: 1fr 1fr;
@@ -925,7 +925,7 @@ hr {
   }
 } 
 
-/* Decision result colors 
+/* Decision result colors */
 .decision-allow {
     color: var(--good);
     font-weight: 600;
@@ -941,7 +941,7 @@ hr {
     font-weight: 600;
 }
 
-/* Animation for trust score 
+/* Animation for trust score */
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
@@ -950,9 +950,11 @@ hr {
 
 .trust-pulse {
     animation: pulse 0.5s ease-in-out;
-} */ 
+} 
 
-* {
+
+/*===================================== New CSS for user dashboard page=============================  */
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -971,7 +973,7 @@ body {
     padding: 20px;
 }
 
-/* Header */
+/* Header 
 header {
     background: rgba(255, 255, 255, 0.95);
     padding: 20px;
@@ -996,7 +998,7 @@ header h1 {
     font-size: 0.9em;
 }
 
-/* Status Indicators */
+/* Status Indicators 
 .status {
     padding: 5px 15px;
     border-radius: 20px;
@@ -1011,7 +1013,7 @@ header h1 {
 .status.risk { background: #e74c3c; }
 .status.ready { background: #95a5a6; }
 
-/* Dashboard Layout */
+/* Dashboard Layout 
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1019,7 +1021,7 @@ header h1 {
     margin-bottom: 20px;
 }
 
-/* Trust Panel */
+/* Trust Panel 
 .trust-panel {
     grid-column: 1 / -1;
     background: rgba(255, 255, 255, 0.95);
@@ -1040,7 +1042,7 @@ header h1 {
     font-weight: bold;
 }
 
-/* Trust Gauge */
+/* Trust Gauge 
 .trust-gauge {
     width: 100%;
     height: 40px;
@@ -1065,14 +1067,14 @@ header h1 {
     margin-top: 10px;
 }
 
-/* Controls */
+/* Controls 
 .controls {
     grid-column: 1 / -1;
     text-align: center;
     margin: 20px 0;
 }
 
-/* Buttons */
+/* Buttons 
 button {
     padding: 12px 30px;
     margin: 0 10px;
@@ -1114,7 +1116,7 @@ button:disabled {
     transform: none;
 }
 
-/* Chart Container */
+/* Chart Container 
 .chart-container {
     background: rgba(255, 255, 255, 0.95);
     padding: 25px;
@@ -1133,7 +1135,7 @@ button:disabled {
     height: 300px !important;
 }
 
-/* Decisions Panel */
+/* Decisions Panel 
 .decisions-panel {
     background: rgba(255, 255, 255, 0.95);
     padding: 25px;
@@ -1174,12 +1176,12 @@ tr:hover {
     background: #f8f9fa;
 }
 
-/* Decision Colors */
+/* Decision Colors 
 .decision-allow { color: #27ae60; font-weight: bold; }
 .decision-challenge { color: #f39c12; font-weight: bold; }
 .decision-block { color: #e74c3c; font-weight: bold; }
 
-/* Animations */
+/* Animations 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1189,7 +1191,7 @@ tr:hover {
     animation: fadeIn 0.5s ease;
 }
 
-/* Responsive Design */
+/* Responsive Design 
 @media (max-width: 768px) {
     .dashboard {
         grid-template-columns: 1fr;
@@ -1216,4 +1218,4 @@ tr:hover {
         flex-direction: column;
         gap: 10px;
     }
-}
+} */

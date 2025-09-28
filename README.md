@@ -5,10 +5,8 @@ It integrates Wi-Fi RSSI, Ambient Sound MFCC entropy, and Smartwatch proximity
 to generate a trust score in real time.
 
 ## Setup
-
-```bash
 python -m venv .venv
-source .venv/bin/activate   # Linux/Mac
+
 .venv\Scripts\activate    # Windows
 
 pip install -r backend/requirements.txt

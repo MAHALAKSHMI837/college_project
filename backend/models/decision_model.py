@@ -1,5 +1,5 @@
 
-from backend.utils.db import get_db
+from backend.services.utils.db import get_db
 
 def save_decision(user_id, trust, result, note=""):
     """
