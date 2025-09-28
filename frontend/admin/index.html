@@ -1,4 +1,4 @@
-<!DOCTYPE html>     original version of ui different from below
+<!-- <!DOCTYPE html>     original version of ui different from below
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -95,7 +95,101 @@
 
   <script src="/admin/admin.js"></script>
 </body>
-</html> 
+</html>  -->
+<!-- ===================================================================================================-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous 2FA - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Continuous 2FA - Admin Panel</h1>
+            <div class="admin-info">
+                <span>System Administrator</span> |
+                <span id="systemStatus" class="status operational">OPERATIONAL</span> |
+                <button id="btnLogout" class="btn-logout">Logout</button>
+            </div>
+        </header>
+
+        <div class="admin-dashboard">
+            <!-- System Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="stat-value" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Decisions</h3>
+                    <div class="stat-value" id="totalDecisions">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Trust Score</h3>
+                    <div class="stat-value" id="avgTrustScore">0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>System Status</h3>
+                    <div class="stat-value" id="systemStatusValue">Active</div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="panel">
+                <h3>Registered Users</h3>
+                <div class="table-container">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Device</th>
+                                <th>Registered</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center;">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Decisions Table -->
+            <div class="panel">
+                <h3>Recent Decisions</h3>
+                <div class="table-container">
+                    <table id="decisionsTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Trust Score</th>
+                                <th>Decision</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="decisionsBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center;">Loading decisions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/admin.js"></script>
+</body>
+</html>
 
 <!-- ===================================================================================================-->
 <!-- <!DOCTYPE html>      updated version of ui different from above

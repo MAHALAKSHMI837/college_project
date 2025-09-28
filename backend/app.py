@@ -1,9 +1,9 @@
 import os
 import sys
 from flask import Flask, send_from_directory, jsonify, request
+from datetime import datetime, timezone, timedelta
 from flask_cors import CORS
 import jwt
-import datetime
 import sqlite3
 from pathlib import Path
 
@@ -24,9 +24,9 @@ print("🔧 Starting Continuous 2FA Authentication System...")
 print(f"📁 Current directory: {current_dir}")
 print(f"📁 Parent directory: {parent_dir}")
 
-# Database setup
+# Database setup - ENHANCED VERSION
 def init_database():
-    """Initialize the SQLite database"""
+    """Initialize the SQLite database with proper data"""
     db_path = app.config['DATABASE_PATH']
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
     
@@ -58,11 +58,24 @@ def init_database():
         )
     ''')
     
-    # Insert sample user if doesn't exist
-    cursor.execute('''
-        INSERT OR IGNORE INTO users (username, password_hash, email, device) 
-        VALUES (?, ?, ?, ?)
-    ''', ('sample', 'password123', 'sample@example.com', 'Sample Device'))
+    # Check if sample user exists
+    cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'sample'")
+    user_exists = cursor.fetchone()[0] > 0
+    
+    if not user_exists:
+        # Insert sample user with hashed password
+        cursor.execute('''
+            INSERT INTO users (username, password_hash, email, device) 
+            VALUES (?, ?, ?, ?)
+        ''', ('sample', 'password123', 'sample@example.com', 'Web Browser'))
+        
+        print("✅ Sample user created: sample / password123")
+    
+    # Check for existing decisions
+    cursor.execute("SELECT COUNT(*) FROM decisions")
+    decision_count = cursor.fetchone()[0]
+    
+    print(f"📊 Database initialized: {decision_count} decisions in system")
     
     conn.commit()
     conn.close()
@@ -85,7 +98,7 @@ def get_db_connection():
 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
-    """User login endpoint"""
+    """User login endpoint with proper data storage"""
     try:
         if not request.is_json:
             return jsonify({"error": "Request must be JSON"}), 400
@@ -93,18 +106,57 @@ def login():
         data = request.get_json() or {}
         username = data.get("username", "").strip()
         password = data.get("password", "")
-        
+        device = data.get("device", "Web Browser")
+
         print(f"🔐 Login attempt for user: '{username}'")
+
+        # Get database connection
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database error"}), 500
         
+        try:
+            cursor = conn.cursor()
+            # Find user in database
+            cursor.execute(
+                "SELECT id, username, password_hash, device FROM users WHERE username = ?", 
+                (username,)
+            )
+            user = cursor.fetchone()
+
+            if not user:
+                print(f"❌ User not found: {username}")
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid credentials"
+                }), 401
+
+         # Simple password check (in production, use proper hashing)
+            stored_password = user[2]  # password_hash field
+            if password != stored_password:
+                print(f"❌ Invalid password for user: {username}")
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid credentials"
+                }), 401
+            
+             # Update user's device info
+            cursor.execute(
+                "UPDATE users SET device = ? WHERE id = ?",
+                (device, user[0])
+            )
+            
         # Simple authentication for demo (in production, use proper hashing)
         if username == "sample" and password == "password123":
             # Generate JWT token
             token = jwt.encode({
-                'user_id': 1,
-                'username': username,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            'user_id': 1,
+            'username': username,
+            'exp': datetime.now(timezone.utc) + timedelta(hours=24)  # Fixed
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
+            conn.commit()
+
             print(f"✅ Login successful for: {username}")
             
             return jsonify({
@@ -115,7 +167,10 @@ def login():
                 "username": username,
                 "device": "Current Device"
             })
-        else:
+        finally:
+            conn.close()
+        
+            else:
             print("❌ Invalid credentials")
             return jsonify({
                 "success": False,
@@ -123,8 +178,9 @@ def login():
             }), 401
             
     except Exception as e:
-        print(f"❌ Login error: {e}")
+        print(f"❌ Decision error: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
@@ -160,10 +216,10 @@ def register():
             
             # Generate token
             token = jwt.encode({
-                'user_id': user_id,
-                'username': username,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
-            }, app.config['SECRET_KEY'], algorithm='HS256')
+            'user_id': 1,
+            'username': username,
+            'exp': datetime.now(timezone.utc) + timedelta(hours=24)  # Fixed
+             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({
                 "success": True,
@@ -271,7 +327,7 @@ def calculate_trust_score():
             'confidence': confidence,
             'status': 'success',
             'user_id': user_id,
-            'timestamp': datetime.datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -285,8 +341,9 @@ def trust_test():
         'message': 'Trust API is working!', 
         'status': 'success',
         'test_trust_score': 0.75,
-        'timestamp': datetime.datetime.utcnow().isoformat()
+        'timestamp': datetime.now(timezone.utc).isoformat()
     })
+ 
 
 # ==================== ADMIN ROUTES ====================
 
@@ -393,7 +450,7 @@ def health_check():
     return jsonify({
         "status": "healthy", 
         "message": "Continuous 2FA System is running",
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        'timestamp': datetime.now(timezone.utc).isoformat(),
         "version": "1.0.0"
     })
 
@@ -454,27 +511,47 @@ def serve_user_dashboard():
 @app.route("/login.html")
 def serve_login():
     """Serve login page"""
-    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "login.html")
+    return send_from_directory(FRONTEND_DIR, "login.html")
 
 @app.route("/admin")
 def serve_admin_dashboard():
     """Serve admin dashboard"""
     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
 
-# Serve static files
+# # Serve static files
+# @app.route("/<path:filename>")
+# def serve_static(filename):
+#     """Serve static files from user or admin directories"""
+#     # Try user directory first
+#     user_path = os.path.join(FRONTEND_DIR, "user", filename)
+#     admin_path = os.path.join(FRONTEND_DIR, "admin", filename)
+    
+#     if os.path.exists(user_path):
+#         return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
+#     elif os.path.exists(admin_path):
+#         return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
+#     else:
+#         return "File not found", 404
+
 @app.route("/<path:filename>")
 def serve_static(filename):
-    """Serve static files from user or admin directories"""
-    # Try user directory first
-    user_path = os.path.join(FRONTEND_DIR, "user", filename)
-    admin_path = os.path.join(FRONTEND_DIR, "admin", filename)
+    """Serve static files from appropriate directories"""
+    # Define possible file locations
+    possible_paths = [
+        os.path.join(FRONTEND_DIR, "user", filename),
+        os.path.join(FRONTEND_DIR, "admin", filename),
+        os.path.join(FRONTEND_DIR, filename)  # For files in root frontend directory
+    ]
     
-    if os.path.exists(user_path):
-        return send_from_directory(os.path.join(FRONTEND_DIR, "user"), filename)
-    elif os.path.exists(admin_path):
-        return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), filename)
-    else:
-        return "File not found", 404
+    # Try each path
+    for path in possible_paths:
+        if os.path.exists(path):
+            directory = os.path.dirname(path)
+            file_to_serve = os.path.basename(path)
+            return send_from_directory(directory, file_to_serve)
+    
+    return "File not found", 404
+
 
 @app.route("/user/<path:filename>")
 def serve_user_files(filename):

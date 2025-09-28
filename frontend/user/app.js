@@ -433,9 +433,79 @@ function stopStream() {
         updateInterval = null;
     }
 }
+// Logout function - FIXED VERSION
+function logout() {
+    console.log('🚪 Logout initiated...');
+    
+    if (confirm('Are you sure you want to logout?')) {
+        // Stop any active stream first
+        if (isStreaming) {
+            stopStream();
+        }
+        
+        // Clear all authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        
+        console.log('✅ Authentication data cleared');
+        
+        // Redirect to login page
+        window.location.href = '/login.html';
+    }
+}
 
+// Debug function to check button states
+function debugButtons() {
+    console.log('🔍 Debugging buttons...');
+    
+    const buttons = ['btnStart', 'btnStop', 'btnLogout'];
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        console.log(`- ${btnId}:`, {
+            exists: !!btn,
+            text: btn ? btn.textContent : 'N/A',
+            classes: btn ? btn.className : 'N/A',
+            disabled: btn ? btn.disabled : 'N/A'
+        });
+    });
+    
+    // Check authentication status
+    console.log('🔐 Auth status:', {
+        token: localStorage.getItem('authToken') ? 'Present' : 'Missing',
+        userId: localStorage.getItem('userId'),
+        username: localStorage.getItem('username')
+    });
+}
 
-
+// Call this in your DOMContentLoaded function
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log("🚀 DOM loaded, initializing...");
+    debugButtons();
+});
+setTimeout(() => {
+    const logoutBtn = document.getElementById('btnLogout');
+    if (logoutBtn) {
+        console.log('🔄 Re-adding logout event listener...');
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔓 Logout button clicked directly');
+            
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear all data
+                localStorage.clear();
+                // Force redirect
+                window.location.href = '/login.html';
+            }
+        });
+        
+        // Make sure it's visible and clickable
+        logoutBtn.style.display = 'block';
+        logoutBtn.style.visibility = 'visible';
+        logoutBtn.style.opacity = '1';
+        logoutBtn.classList.remove('ghost');
+    }
+}, 1000);
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log("🚀 DOM loaded, initializing...");

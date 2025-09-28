@@ -953,6 +953,27 @@ hr {
 } 
 
 
+/* Logout button specific styles */
+.btn-logout {
+    background: #d22424 !important;
+    color: white !important;
+    border: none !important;
+    margin-left: 10px;
+}
+
+.btn-logout:hover {
+    background: #b31e1e !important;
+    transform: translateY(-2px);
+}
+
+/* Ensure logout button is always visible (not ghost) */
+#btnLogout.ghost {
+    background: #d22424 !important;
+    color: white !important;
+    border: none !important;
+    opacity: 1 !important;
+}
+
 /*===================================== New CSS for user dashboard page=============================  */
 /* * {
     margin: 0;
