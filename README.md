@@ -132,7 +132,7 @@ continuous-2fa-auth/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/continuous-2fa-auth.git
+git clone https://github.com/MAHALAKSHMI837/continuous-2fa-auth.git
 cd continuous-2fa-auth
 
 2. Backend Setup

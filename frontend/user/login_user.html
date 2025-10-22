@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous 2FA - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0b1220 0%, #0d1526 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e7edf7;
+        }
+
+        .login-container {
+            background: #101a2b;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #162444;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2em;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .logo .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #5b8cff;
+            display: inline-block;
+            margin-right: 10px;
+            box-shadow: 0 0 18px #5b8cff;
+        }
+
+        .badge {
+            background: #132340;
+            color: #b9c6db;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #7b8aa0;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0b152a;
+            border: 1px solid #1b2d53;
+            border-radius: 10px;
+            color: #e7edf7;
+            font-size: 1em;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #5b8cff;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: #5b8cff;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background: #4a7aff;
+        }
+
+        .demo-credentials {
+            background: #132340;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .demo-credentials h3 {
+            color: #7b8aa0;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .demo-credentials p {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+
+        .error-message {
+            background: #d22424;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            background: #24d27b;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1><span class="dot"></span>Continuous 2FA</h1>
+            <div class="badge">Secure Authentication System</div>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="sample" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="password123" required>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="demo-credentials">
+            <h3>Demo Credentials:</h3>
+            <p>Username: sample</p>
+            <p>Password: password123</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginBtn = document.querySelector('.btn-login');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Show loading
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Store authentication data
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userId', data.user_id);
+                    localStorage.setItem('username', data.username);
+                    
+                    // Show success message
+                    successMessage.textContent = 'Login successful! Redirecting...';
+                    successMessage.style.display = 'block';
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                    
+                } else {
+                    // Show error message
+                    errorMessage.textContent = data.message || 'Login failed. Please check your credentials.';
+                    errorMessage.style.display = 'block';
+                }
+                
+            } catch (error) {
+                errorMessage.textContent = 'Connection error. Please check if the server is running.';
+                errorMessage.style.display = 'block';
+                console.error('Login error:', error);
+            } finally {
+                // Reset button
+                loginBtn.textContent = 'Login';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

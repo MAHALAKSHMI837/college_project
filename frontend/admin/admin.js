@@ -1,29 +1,4 @@
-//     const API_BASE = "http://127.0.0.1:5000/api";
-//     let trustTrendChart, decisionPieChart;
-//     let refreshInterval;
 
-//     // Load all data for the admin dashboard
-//     async function loadAllData() {
-//       try {
-//         console.log("🔄 Loading admin data...");
-        
-//         // Load users
-//         await loadUsers();
-        
-//         // Load decisions
-//         await loadDecisions();
-        
-//         // Load stats
-//         await loadStats();
-        
-//         // Update last updated timestamp
-//         document.getElementById('lastUpdated').textContent = 
-//           `Last updated: ${new Date().toLocaleTimeString()}`;
-          
-//       } catch (error) {
-//         console.error("Error loading admin data:", error);
-//       }
-//     }
 
 //     // Load users from backend
 //     async function loadUsers() {
@@ -468,47 +443,322 @@
   
 
 // //============================================================================================================
+// const API_BASE = "http://127.0.0.1:5000/api";
+
+// // Check authentication
+// function checkAuth() {
+//     const token = localStorage.getItem('authToken');
+//     const userId = localStorage.getItem('userId');
+    
+//     console.log('🔐 Admin auth check:', {
+//         token: token ? 'Present' : 'Missing',
+//         userId: userId
+//     });
+    
+//     if (!token || !userId) {
+//         console.log('❌ Admin not authenticated, redirecting to login');
+//         window.location.href = '/login.html';
+//         return false;
+//     }
+    
+//     console.log('✅ Admin authentication passed');
+//     return true;
+// }
+// // Test if admin APIs are working
+// async function testAdminAPIs() {
+//     console.log('🧪 Testing admin APIs...');
+    
+//     try {
+//         const stats = await fetch('/api/admin/stats').then(r => r.json());
+//         console.log('📊 Stats API:', stats);
+        
+//         const users = await fetch('/api/admin/users').then(r => r.json());
+//         console.log('👥 Users API:', users);
+        
+//         const decisions = await fetch('/api/admin/decisions').then(r => r.json());
+//         console.log('📋 Decisions API:', decisions);
+        
+//     } catch (error) {
+//         console.error('❌ API test failed:', error);
+//     }
+// }
+
+// testAdminAPIs();
+
+// // Load system statistics
+// async function loadSystemStats() {
+//     try {
+//         console.log('📊 Loading system stats...');
+//         const response = await fetch('/api/admin/stats');
+        
+//         if (response.ok) {
+//             const stats = await response.json();
+//             console.log('✅ System stats loaded:', stats);
+            
+//             // Update the UI with actual data
+//             document.getElementById('totalUsers').textContent = stats.total_users || 0;
+//             document.getElementById('totalDecisions').textContent = stats.total_decisions || 0;
+//             document.getElementById('avgTrustScore').textContent = stats.average_trust_score ? stats.average_trust_score.toFixed(2) : '0.00';
+//             document.getElementById('systemStatusValue').textContent = stats.system_status || 'Active';
+            
+//         } else {
+//             console.error('❌ Failed to load stats:', response.status);
+//             // Set fallback values
+//             setFallbackStats();
+//         }
+//     } catch (error) {
+//         console.error('❌ Error loading stats:', error);
+//         setFallbackStats();
+//     }
+// }
+
+// // Fallback stats if API fails
+// function setFallbackStats() {
+//     console.log('⚠️ Using fallback stats');
+//     document.getElementById('totalUsers').textContent = '1';
+//     document.getElementById('totalDecisions').textContent = '0';
+//     document.getElementById('avgTrustScore').textContent = '0.00';
+//     document.getElementById('systemStatusValue').textContent = 'Active';
+// }
+
+// // Load users
+// async function loadUsers() {
+//     try {
+//         console.log('👥 Loading users...');
+//         const response = await fetch('/api/admin/users');
+//         const tbody = document.getElementById('usersBody');
+        
+//         if (response.ok) {
+//             const users = await response.json();
+//             console.log('✅ Users loaded:', users.length);
+            
+//             if (users.length === 0) {
+//                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7b8aa0;">No users found</td></tr>';
+//                 return;
+//             }
+            
+//             tbody.innerHTML = users.map(user => `
+//                 <tr>
+//                     <td><strong>${user.id}</strong></td>
+//                     <td>${user.username || 'Unknown'}</td>
+//                     <td>${user.email || 'N/A'}</td>
+//                     <td>${user.device || 'Unknown Device'}</td>
+//                     <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</td>
+//                 </tr>
+//             `).join('');
+            
+//         } else {
+//             console.error('❌ Failed to load users:', response.status);
+//             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Error loading users</td></tr>';
+//         }
+//     } catch (error) {
+//         console.error('❌ Error loading users:', error);
+//         document.getElementById('usersBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Connection error</td></tr>';
+//     }
+// }
+
+// // Load decisions
+// async function loadDecisions() {
+//     try {
+//         console.log('📋 Loading decisions...');
+//         const response = await fetch('/api/admin/decisions');
+//         const tbody = document.getElementById('decisionsBody');
+        
+//         if (response.ok) {
+//             const decisions = await response.json();
+//             console.log('✅ Decisions loaded:', decisions.length);
+            
+//             if (decisions.length === 0) {
+//                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7b8aa0;">No decisions found</td></tr>';
+//                 return;
+//             }
+            
+//             tbody.innerHTML = decisions.map(decision => {
+//                 const decisionClass = `decision-${decision.decision ? decision.decision.toLowerCase() : 'unknown'}`;
+//                 return `
+//                     <tr>
+//                         <td>${decision.created_at ? new Date(decision.created_at).toLocaleString() : 'Unknown'}</td>
+//                         <td><strong>${decision.username || 'Unknown User'}</strong></td>
+//                         <td style="font-weight: bold;">${decision.trust_score ? decision.trust_score.toFixed(2) : '0.00'}</td>
+//                         <td class="${decisionClass}">${decision.decision || 'UNKNOWN'}</td>
+//                         <td>${decision.note || 'No reason provided'}</td>
+//                     </tr>
+//                 `;
+//             }).join('');
+            
+//         } else {
+//             console.error('❌ Failed to load decisions:', response.status);
+//             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Error loading decisions</td></tr>';
+//         }
+//     } catch (error) {
+//         console.error('❌ Error loading decisions:', error);
+//         document.getElementById('decisionsBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Connection error</td></tr>';
+//     }
+// }
+
+// // Refresh all data
+// async function refreshData() {
+//     console.log('🔄 Refreshing admin data...');
+//     await loadSystemStats();
+//     await loadUsers();
+//     await loadDecisions();
+//     console.log('✅ Admin data refresh complete');
+// }
+
+// // Logout function
+// function logout() {
+//     console.log('🚪 Admin logout initiated...');
+    
+//     if (confirm('Are you sure you want to logout?')) {
+//         // Clear all authentication data
+//         localStorage.removeItem('authToken');
+//         localStorage.removeItem('userId');
+//         localStorage.removeItem('username');
+        
+//         console.log('✅ Admin authentication data cleared');
+        
+//         // Redirect to login page
+//         window.location.href = '/login.html';
+//     }
+// }
+
+// // Add manual refresh button
+// function addRefreshButton() {
+//     const refreshButton = document.createElement('button');
+//     refreshButton.textContent = '🔄 Refresh';
+//     refreshButton.className = 'btn-refresh';
+//     refreshButton.style.background = '#24d27b';
+//     refreshButton.style.color = 'white';
+//     refreshButton.style.border = 'none';
+//     refreshButton.style.padding = '10px 15px';
+//     refreshButton.style.borderRadius = '8px';
+//     refreshButton.style.cursor = 'pointer';
+//     refreshButton.style.marginLeft = '10px';
+//     refreshButton.style.fontWeight = '600';
+    
+//     refreshButton.addEventListener('click', refreshData);
+    
+//     // Add to admin info section
+//     const adminInfo = document.querySelector('.admin-info');
+//     if (adminInfo) {
+//         adminInfo.appendChild(refreshButton);
+//     }
+// }
+
+// // Debug function to check what's loading
+// function debugAdminLoad() {
+//     console.log('🔍 Admin debug info:');
+//     console.log('- Total Users element:', document.getElementById('totalUsers'));
+//     console.log('- Users table body:', document.getElementById('usersBody'));
+//     console.log('- Decisions table body:', document.getElementById('decisionsBody'));
+//     console.log('- Logout button:', document.getElementById('btnLogout'));
+// }
+
+// // Initialize admin dashboard
+// document.addEventListener('DOMContentLoaded', async function() {
+//     console.log('🚀 Admin Dashboard Loading...');
+    
+//     // Debug first
+//     debugAdminLoad();
+    
+//     if (!checkAuth()) {
+//         return;
+//     }
+    
+//     // Add refresh button
+//     addRefreshButton();
+    
+//     // Load initial data
+//     await refreshData();
+    
+//     // Add event listeners
+//     const logoutBtn = document.getElementById('btnLogout');
+//     if (logoutBtn) {
+//         logoutBtn.addEventListener('click', logout);
+//         console.log('✅ Admin logout listener added');
+//     } else {
+//         console.error('❌ Admin logout button not found!');
+//     }
+    
+//     // Auto-refresh every 30 seconds
+//     setInterval(refreshData, 30000);
+    
+//     console.log('✅ Admin Dashboard Ready!');
+    
+//     // Force refresh after 2 seconds (in case of initial load issues)
+//     setTimeout(refreshData, 2000);
+// });
+
 const API_BASE = "http://127.0.0.1:5000/api";
 
-// Check authentication
+// Check admin authentication
 function checkAuth() {
-    const token = localStorage.getItem('authToken');
-    const userId = localStorage.getItem('userId');
+    const adminToken = localStorage.getItem('adminToken');
+    const isAdmin = localStorage.getItem('isAdmin');
     
     console.log('🔐 Admin auth check:', {
-        token: token ? 'Present' : 'Missing',
-        userId: userId
+        adminToken: adminToken ? 'Present' : 'Missing',
+        isAdmin: isAdmin
     });
     
-    if (!token || !userId) {
-        console.log('❌ Admin not authenticated, redirecting to login');
-        window.location.href = '/login.html';
+    if (!adminToken || isAdmin !== 'true') {
+        console.log('❌ Admin not authenticated, redirecting to admin login');
+        window.location.href = '/admin-login.html';
         return false;
     }
     
     console.log('✅ Admin authentication passed');
     return true;
 }
+
 // Test if admin APIs are working
 async function testAdminAPIs() {
     console.log('🧪 Testing admin APIs...');
     
     try {
-        const stats = await fetch('/api/admin/stats').then(r => r.json());
+        const statsResponse = await fetch('/api/admin/stats');
+        const stats = statsResponse.ok ? await statsResponse.json() : { error: 'Stats API failed' };
         console.log('📊 Stats API:', stats);
         
-        const users = await fetch('/api/admin/users').then(r => r.json());
-        console.log('👥 Users API:', users);
+        const usersResponse = await fetch('/api/admin/users');
+        const users = usersResponse.ok ? await usersResponse.json() : { error: 'Users API failed' };
+        console.log('👥 Users API:', Array.isArray(users) ? `${users.length} users` : users);
         
-        const decisions = await fetch('/api/admin/decisions').then(r => r.json());
+        const decisionsResponse = await fetch('/api/admin/decisions');
+        const decisions = decisionsResponse.ok ? await decisionsResponse.json() : { error: 'Decisions API failed' };
         console.log('📋 Decisions API:', decisions);
+        
+        // Test the new debug endpoint
+        const debugResponse = await fetch('/api/debug/decisions-count');
+        const debugData = debugResponse.ok ? await debugResponse.json() : { error: 'Debug API failed' };
+        console.log('🐛 Debug Data:', debugData);
         
     } catch (error) {
         console.error('❌ API test failed:', error);
     }
 }
 
-testAdminAPIs();
+// Create test data if needed
+async function createTestData() {
+    try {
+        console.log('📝 Creating test data...');
+        const response = await fetch('/api/debug/create-test-data', { method: 'POST' });
+        const result = await response.json();
+        console.log('✅ Test data result:', result);
+        
+        if (result.success) {
+            alert(`Created ${result.data.decisions_created} test decisions!`);
+        } else {
+            alert('Failed to create test data: ' + result.error);
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('❌ Failed to create test data:', error);
+        alert('Error creating test data: ' + error.message);
+        return null;
+    }
+}
 
 // Load system statistics
 async function loadSystemStats() {
@@ -553,9 +803,26 @@ async function loadUsers() {
         const response = await fetch('/api/admin/users');
         const tbody = document.getElementById('usersBody');
         
+        if (!tbody) {
+            console.error('❌ usersBody element not found!');
+            return;
+        }
+        
         if (response.ok) {
-            const users = await response.json();
-            console.log('✅ Users loaded:', users.length);
+            const result = await response.json();
+            console.log('✅ Users API response:', result);
+            
+            // Handle both array and object response formats
+            let users = [];
+            if (Array.isArray(result)) {
+                users = result;
+            } else if (result && result.success && Array.isArray(result.data)) {
+                users = result.data;
+            } else if (result && Array.isArray(result.users)) {
+                users = result.users;
+            }
+            
+            console.log('📊 Processed users:', users.length);
             
             if (users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7b8aa0;">No users found</td></tr>';
@@ -578,47 +845,132 @@ async function loadUsers() {
         }
     } catch (error) {
         console.error('❌ Error loading users:', error);
-        document.getElementById('usersBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Connection error</td></tr>';
+        const tbody = document.getElementById('usersBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Connection error</td></tr>';
+        }
     }
 }
 
-// Load decisions
+// Load decisions - FIXED VERSION
 async function loadDecisions() {
     try {
         console.log('📋 Loading decisions...');
         const response = await fetch('/api/admin/decisions');
         const tbody = document.getElementById('decisionsBody');
         
+        if (!tbody) {
+            console.error('❌ decisionsBody element not found!');
+            return;
+        }
+        
         if (response.ok) {
-            const decisions = await response.json();
-            console.log('✅ Decisions loaded:', decisions.length);
+            const result = await response.json();
+            console.log('✅ Decisions API response:', result);
+            
+            // Handle both array and object response formats
+            let decisions = [];
+            if (Array.isArray(result)) {
+                decisions = result;
+            } else if (result && result.success && Array.isArray(result.data)) {
+                decisions = result.data;
+            } else if (result && Array.isArray(result.decisions)) {
+                decisions = result.decisions;
+            }
+            
+            console.log('📊 Processed decisions:', decisions.length);
             
             if (decisions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7b8aa0;">No decisions found</td></tr>';
+                
+                // Offer to create test data
+                const createTestDataBtn = document.createElement('button');
+                createTestDataBtn.textContent = 'Create Test Data';
+                createTestDataBtn.style.background = '#24a0d2';
+                createTestDataBtn.style.color = 'white';
+                createTestDataBtn.style.border = 'none';
+                createTestDataBtn.style.padding = '8px 12px';
+                createTestDataBtn.style.borderRadius = '4px';
+                createTestDataBtn.style.cursor = 'pointer';
+                createTestDataBtn.style.marginTop = '10px';
+                
+                createTestDataBtn.addEventListener('click', async () => {
+                    createTestDataBtn.textContent = 'Creating...';
+                    createTestDataBtn.disabled = true;
+                    await createTestData();
+                    setTimeout(() => {
+                        loadDecisions();
+                        loadSystemStats();
+                    }, 1000);
+                });
+                
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7b8aa0;">
+                            No decisions found
+                            <div style="margin-top: 10px;"></div>
+                        </td>
+                    </tr>
+                `;
+                tbody.querySelector('td').appendChild(createTestDataBtn);
                 return;
             }
             
+            // Display decisions
             tbody.innerHTML = decisions.map(decision => {
-                const decisionClass = `decision-${decision.decision ? decision.decision.toLowerCase() : 'unknown'}`;
+                const result = decision.result || decision.decision || 'UNKNOWN';
+                const decisionClass = `decision-${result.toLowerCase()}`;
+                const trustScore = decision.trust_score || decision.trust_score === 0 ? decision.trust_score : 'N/A';
+                const username = decision.username || `User ${decision.user_id}` || 'Unknown User';
+                const note = decision.note || 'No reason provided';
+                const createdAt = decision.created_at ? new Date(decision.created_at).toLocaleString() : 'Unknown';
+                
                 return `
                     <tr>
-                        <td>${decision.created_at ? new Date(decision.created_at).toLocaleString() : 'Unknown'}</td>
-                        <td><strong>${decision.username || 'Unknown User'}</strong></td>
-                        <td style="font-weight: bold;">${decision.trust_score ? decision.trust_score.toFixed(2) : '0.00'}</td>
-                        <td class="${decisionClass}">${decision.decision || 'UNKNOWN'}</td>
-                        <td>${decision.note || 'No reason provided'}</td>
+                        <td>${createdAt}</td>
+                        <td><strong>${username}</strong></td>
+                        <td style="font-weight: bold; color: ${getTrustScoreColor(trustScore)}">
+                            ${typeof trustScore === 'number' ? trustScore.toFixed(2) : trustScore}
+                        </td>
+                        <td class="${decisionClass}">${result}</td>
+                        <td title="${note}">${note.length > 50 ? note.substring(0, 50) + '...' : note}</td>
                     </tr>
                 `;
             }).join('');
             
+            console.log('✅ Decisions displayed:', decisions.length);
+            
         } else {
-            console.error('❌ Failed to load decisions:', response.status);
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Error loading decisions</td></tr>';
+            console.error('❌ Failed to load decisions:', response.status, response.statusText);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #d22424;">
+                        Error loading decisions: ${response.status} ${response.statusText}
+                    </td>
+                </tr>
+            `;
         }
     } catch (error) {
         console.error('❌ Error loading decisions:', error);
-        document.getElementById('decisionsBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #d22424;">Connection error</td></tr>';
+        const tbody = document.getElementById('decisionsBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #d22424;">
+                        Connection error: ${error.message}
+                    </td>
+                </tr>
+            `;
+        }
     }
+}
+
+// Helper function to get color based on trust score
+function getTrustScoreColor(score) {
+    if (typeof score !== 'number') return '#666';
+    if (score >= 0.7) return '#24d27b'; // Green for high trust
+    if (score >= 0.4) return '#d2b324'; // Yellow for medium trust
+    return '#d22424'; // Red for low trust
 }
 
 // Refresh all data
@@ -635,15 +987,16 @@ function logout() {
     console.log('🚪 Admin logout initiated...');
     
     if (confirm('Are you sure you want to logout?')) {
-        // Clear all authentication data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('username');
+        // Clear admin authentication data
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminId');
+        localStorage.removeItem('adminUsername');
+        localStorage.removeItem('isAdmin');
         
         console.log('✅ Admin authentication data cleared');
         
-        // Redirect to login page
-        window.location.href = '/login.html';
+        // Redirect to admin login page
+        window.location.href = '/admin-login.html';
     }
 }
 
@@ -670,6 +1023,29 @@ function addRefreshButton() {
     }
 }
 
+// Add debug button
+function addDebugButton() {
+    const debugButton = document.createElement('button');
+    debugButton.textContent = '🐛 Debug';
+    debugButton.className = 'btn-debug';
+    debugButton.style.background = '#d27b24';
+    debugButton.style.color = 'white';
+    debugButton.style.border = 'none';
+    debugButton.style.padding = '10px 15px';
+    debugButton.style.borderRadius = '8px';
+    debugButton.style.cursor = 'pointer';
+    debugButton.style.marginLeft = '10px';
+    debugButton.style.fontWeight = '600';
+    
+    debugButton.addEventListener('click', testAdminAPIs);
+    
+    // Add to admin info section
+    const adminInfo = document.querySelector('.admin-info');
+    if (adminInfo) {
+        adminInfo.appendChild(debugButton);
+    }
+}
+
 // Debug function to check what's loading
 function debugAdminLoad() {
     console.log('🔍 Admin debug info:');
@@ -677,11 +1053,72 @@ function debugAdminLoad() {
     console.log('- Users table body:', document.getElementById('usersBody'));
     console.log('- Decisions table body:', document.getElementById('decisionsBody'));
     console.log('- Logout button:', document.getElementById('btnLogout'));
+    
+    // Check if tables exist
+    console.log('- Users table exists:', !!document.getElementById('usersBody'));
+    console.log('- Decisions table exists:', !!document.getElementById('decisionsBody'));
+}
+
+// Add CSS for decision status
+function addDecisionStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .decision-allow { 
+            color: #24d27b; 
+            font-weight: bold; 
+            background: rgba(36, 210, 123, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .decision-challenge { 
+            color: #d2b324; 
+            font-weight: bold; 
+            background: rgba(210, 179, 36, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .decision-block { 
+            color: #d22424; 
+            font-weight: bold; 
+            background: rgba(210, 36, 36, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .decision-monitor { 
+            color: #247bd2; 
+            font-weight: bold; 
+            background: rgba(36, 123, 210, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .decision-unknown { 
+            color: #666; 
+            font-weight: bold; 
+            background: rgba(102, 102, 102, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .decision-item {
+            border-left: 4px solid;
+            padding-left: 10px;
+            margin: 5px 0;
+        }
+        
+        .decision-allow { border-left-color: #24d27b; }
+        .decision-challenge { border-left-color: #d2b324; }
+        .decision-block { border-left-color: #d22424; }
+        .decision-monitor { border-left-color: #247bd2; }
+    `;
+    document.head.appendChild(style);
 }
 
 // Initialize admin dashboard
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Admin Dashboard Loading...');
+    
+    // Add decision styles
+    addDecisionStyles();
     
     // Debug first
     debugAdminLoad();
@@ -690,8 +1127,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
     
-    // Add refresh button
+    // Add buttons
     addRefreshButton();
+    addDebugButton();
+    
+    // Test APIs first
+    await testAdminAPIs();
     
     // Load initial data
     await refreshData();
