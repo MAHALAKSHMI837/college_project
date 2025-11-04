@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Continuous 2FA Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="trading-dashboard.css">
+</head>
+<body>
+    <!-- Left Filter Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🔍 Analytics Filters</h2>
+        </div>
+        
+        <div class="filter-section">
+            <label for="userSelect">Select User</label>
+            <select id="userSelect" class="filter-input">
+                <option value="all">All Users</option>
+                <option value="maha">Maha</option>
+                <option value="admin">Admin</option>
+                <option value="testuser">Test User</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <label for="dateRange">Date Range</label>
+            <select id="dateRange" class="filter-input">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="custom">Custom Range</option>
+            </select>
+            <div id="customDateInputs" class="custom-date-inputs" style="display: none;">
+                <input type="date" id="startDate" class="filter-input">
+                <input type="date" id="endDate" class="filter-input">
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <label for="decisionType">Decision Type</label>
+            <select id="decisionType" class="filter-input">
+                <option value="all">All Decisions</option>
+                <option value="ALLOW">ALLOW</option>
+                <option value="CHALLENGE">CHALLENGE</option>
+                <option value="BLOCK">BLOCK</option>
+            </select>
+        </div>
+        
+        <div class="filter-buttons">
+            <button id="applyFilter" class="btn-primary">Apply Filter</button>
+            <button id="resetFilter" class="btn-secondary">Reset Filters</button>
+        </div>
+        
+        <div class="filter-summary">
+            <h4>Filter Summary</h4>
+            <div id="filterSummaryContent">
+                <p>Showing: All Users</p>
+                <p>Period: Today</p>
+                <p>Type: All Decisions</p>
+            </div>
+        </div>
+        
+        <div class="live-monitoring">
+            <label class="toggle-switch">
+                <input type="checkbox" id="liveMode">
+                <span class="slider"></span>
+            </label>
+            <span>Live Monitoring</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>🧠 Continuous 2FA Analytics Dashboard</h1>
+            <div class="header-summary" id="headerSummary">
+                Analyzing authentication patterns for enhanced security verification
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3 id="totalUsers">0</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <h3 id="totalDecisions">0</h3>
+                    <p>Total Decisions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <h3 id="avgTrust">0.00</h3>
+                    <p>Avg Trust Score</p>
+                </div>
+            </div>
+            <div class="stat-card threat-indicator">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-content">
+                    <h3 id="threatLevel">LOW</h3>
+                    <p>Threat Level</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Trust Score Trend</h3>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" data-period="24h">24H</button>
+                        <button class="chart-btn" data-period="7d">7D</button>
+                        <button class="chart-btn" data-period="30d">30D</button>
+                    </div>
+                </div>
+                <canvas id="trustTrendChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Decision Distribution</h3>
+                </div>
+                <canvas id="decisionPieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <h4>User Heatmap</h4>
+                <canvas id="userHeatmapChart"></canvas>
+            </div>
+            
+            <div class="analytics-card">
+                <h4>Hourly Activity</h4>
+                <canvas id="hourlyActivityChart"></canvas>
+            </div>
+            
+            <div class="analytics-card">
+                <h4>Trust Distribution</h4>
+                <canvas id="trustDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Detailed Decision Log</h3>
+                <div class="table-controls">
+                    <button id="downloadReport" class="btn-download">📥 Download Report</button>
+                    <input type="text" id="searchTable" placeholder="Search decisions..." class="search-input">
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="decisionsTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Trust Score</th>
+                            <th>Decision</th>
+                            <th>Reason</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="decisionsTableBody">
+                        <!-- Data populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button id="prevPage" class="page-btn">← Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button id="nextPage" class="page-btn">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="trading-dashboard.js"></script>
+</body>
+</html>

@@ -145,7 +145,15 @@ def serve_admin_login():
 
 @app.route("/admin")
 def serve_admin_dashboard():
+    # Try trading dashboard first
+    trading_path = os.path.join(FRONTEND_DIR, "admin", "trading-dashboard.html")
+    if os.path.exists(trading_path):
+        return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "trading-dashboard.html")
     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "index.html")
+
+@app.route("/admin/trading")
+def serve_trading_dashboard():
+    return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "trading-dashboard.html")
 
 @app.route("/<path:filename>")
 def serve_static(filename):
