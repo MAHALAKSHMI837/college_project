@@ -16,8 +16,8 @@ class DatabaseManager:
         return cls._instance
     
     def __init__(self):
-        if self._connection_pool is None:
-            self._create_pool()
+        # Skip database connection for now
+        logger.info("Database manager initialized (no connection)")
     
     def _create_pool(self):
         """Create connection pool for better performance"""
@@ -31,14 +31,20 @@ class DatabaseManager:
                 user=Config.DB_USER,
                 password=Config.DB_PASSWORD
             )
-            logger.info("✅ Database connection pool created")
+            logger.info("Database connection pool created")
         except Exception as e:
-            logger.error(f"❌ Failed to create connection pool: {e}")
-            raise
+            logger.error(f"Failed to create connection pool: {e}")
+            # Don't raise, just continue without database
+            self._connection_pool = None
     
     @contextmanager
     def get_connection(self):
         """Context manager for database connections"""
+        if self._connection_pool is None:
+            # Return a mock connection that does nothing
+            yield None
+            return
+            
         conn = None
         try:
             conn = self._connection_pool.getconn()

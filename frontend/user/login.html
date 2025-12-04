@@ -224,9 +224,9 @@
                 
                 if (response.ok && data.success) {
                     // Store authentication data
-                    localStorage.setItem('authToken', data.data.token);
-                    localStorage.setItem('userId', data.data.user_id);
-                    localStorage.setItem('username', data.data.username);
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userId', data.user_id);
+                    localStorage.setItem('username', data.username);
                     
                     // Show success message
                     successMessage.textContent = 'Login successful! Redirecting...';
