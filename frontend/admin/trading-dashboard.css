@@ -192,6 +192,17 @@ input:checked + .slider:before {
 
 .dashboard-header {
     margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border: 1px solid #4a5568;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.header-left {
+    flex: 1;
 }
 
 .dashboard-header h1 {
@@ -206,6 +217,40 @@ input:checked + .slider:before {
 .header-summary {
     color: #a0aec0;
     font-size: 16px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.admin-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#adminUsername {
+    color: #5b8cff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-logout {
+    background: #d22424;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
 }
 
 /* Stats Grid */
@@ -349,6 +394,172 @@ input:checked + .slider:before {
     color: #e2e8f0;
     margin-bottom: 15px;
     font-weight: 600;
+}
+
+/* Security Behaviour Section */
+.security-behaviour-section {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border: 1px solid #5b8cff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(91, 140, 255, 0.2);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    color: #5b8cff;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.btn-security {
+    background: linear-gradient(135deg, #5b8cff 0%, #4c7cf0 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-security:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(91, 140, 255, 0.4);
+}
+
+.security-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.security-card {
+    background: rgba(91, 140, 255, 0.1);
+    border: 1px solid rgba(91, 140, 255, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.security-card h4 {
+    color: #5b8cff;
+    margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.threat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.threat-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    border-left: 4px solid;
+}
+
+.threat-item.high {
+    background: rgba(255, 107, 107, 0.1);
+    border-left-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.threat-item.medium {
+    background: rgba(255, 204, 0, 0.1);
+    border-left-color: #ffcc00;
+    color: #ffcc00;
+}
+
+.threat-item.low {
+    background: rgba(91, 140, 255, 0.1);
+    border-left-color: #5b8cff;
+    color: #5b8cff;
+}
+
+.session-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #cbd5e0;
+}
+
+.stat-row span:last-child {
+    color: #5b8cff;
+    font-weight: 600;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-action.terminate {
+    background: #5b8cff;
+    color: white;
+}
+
+.btn-action.challenge {
+    background: #24d27b;
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+}
+
+.policy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.policy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #cbd5e0;
+}
+
+.status {
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.status.enabled {
+    color: #24d27b;
+}
+
+.status.disabled {
+    color: #ff6b6b;
 }
 
 /* Table Section */

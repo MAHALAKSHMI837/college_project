@@ -75,9 +75,17 @@
     <div class="main-content">
         <!-- Header -->
         <div class="dashboard-header">
-            <h1> Continuous 2FA Analytics Dashboard</h1>
-            <div class="header-summary" id="headerSummary">
-                Analyzing authentication patterns for enhanced security verification
+            <div class="header-left">
+                <h1> Continuous 2FA Analytics Dashboard</h1>
+                <div class="header-summary" id="headerSummary">
+                    Analyzing authentication patterns for enhanced security verification
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="admin-info">
+                    <span id="adminUsername">Admin</span>
+                    <button id="logoutBtn" class="btn-logout">🚪 Logout</button>
+                </div>
             </div>
         </div>
 
@@ -150,6 +158,58 @@
             <div class="analytics-card">
                 <h4>Trust Distribution</h4>
                 <canvas id="trustDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Security Behaviour Section -->
+        <div class="security-behaviour-section">
+            <div class="section-header">
+                <h3>🔒 Security Behaviour Control</h3>
+                <button id="openSecurityDashboard" class="btn-security">Open Security Dashboard</button>
+            </div>
+            <div class="security-grid">
+                <div class="security-card threat-alerts">
+                    <h4>⚠️ Active Threats</h4>
+                    <div class="threat-list" id="threatList">
+                        <div class="threat-item high">Bot detection: IP 203.45.67.89</div>
+                        <div class="threat-item medium">Geo-mismatch: Moscow login</div>
+                        <div class="threat-item low">Unusual time access</div>
+                    </div>
+                </div>
+                <div class="security-card session-control">
+                    <h4>🎮 Session Control</h4>
+                    <div class="session-stats">
+                        <div class="stat-row">
+                            <span>Active Sessions:</span>
+                            <span id="activeSessions">12</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Terminated Today:</span>
+                            <span id="terminatedSessions">3</span>
+                        </div>
+                        <div class="control-buttons">
+                            <button class="btn-action terminate">Terminate All</button>
+                            <button class="btn-action challenge">Challenge All</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="security-card policy-status">
+                    <h4>📋 Security Policies</h4>
+                    <div class="policy-list">
+                        <div class="policy-item">
+                            <span>MFA Required:</span>
+                            <span class="status enabled">✓ Enabled</span>
+                        </div>
+                        <div class="policy-item">
+                            <span>Geo Blocking:</span>
+                            <span class="status enabled">✓ Active</span>
+                        </div>
+                        <div class="policy-item">
+                            <span>IP Whitelist:</span>
+                            <span class="status disabled">✗ Disabled</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

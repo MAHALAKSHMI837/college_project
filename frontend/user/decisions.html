@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/user/user.css">
+  <link rel="stylesheet" href="/user/decisions.css">
+  <title>AI Decisions - Continuous 2FA</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="header-top">
+      <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search decisions…"/>
+        <button id="btnRefresh" class="btn">🔄 Refresh</button>
+        <button id="btnExport" class="btn ghost">📊 Export</button>
+        <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+        <div class="user-info">
+          <span id="userWelcome">Welcome, User</span>
+        </div>
+      </div>
+    </div>
+    <div class="navigation">
+      <span class="nav-items">
+        <a href="/" class="nav-link">Dashboard</a> · 
+        <a href="/user/streams.html" class="nav-link">Streams</a> · 
+        <a href="/user/decisions.html" class="nav-link active">Decisions</a> · 
+        <a href="/user/settings.html" class="nav-link">Settings</a>
+      </span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Decision Filters</h3>
+      <div class="filter-group">
+        <label class="filter-item">
+          <input type="checkbox" checked> Allow
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Challenge
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Block
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Review
+        </label>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Confidence Level</h3>
+      <div class="confidence-filter">
+        <input type="range" class="confidence-slider" min="0" max="100" value="70">
+        <div class="confidence-labels">
+          <span>Low</span>
+          <span>High</span>
+        </div>
+        <div class="confidence-value">Min: 70%</div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Time Range</h3>
+      <select class="time-filter">
+        <option>Last Hour</option>
+        <option selected>Last 24 Hours</option>
+        <option>Last Week</option>
+        <option>Last Month</option>
+        <option>Custom Range</option>
+      </select>
+    </div>
+    <div class="section">
+      <h3>Model Performance</h3>
+      <div class="model-stats">
+        <div class="model-stat">
+          <span class="stat-label">Accuracy</span>
+          <span class="stat-value">94.2%</span>
+        </div>
+        <div class="model-stat">
+          <span class="stat-label">Precision</span>
+          <span class="stat-value">91.8%</span>
+        </div>
+        <div class="model-stat">
+          <span class="stat-label">Recall</span>
+          <span class="stat-value">96.1%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="breadcrumb">
+      <a href="/">Dashboard</a> > <span>AI Decisions</span>
+    </div>
+
+    <section class="decisions-header">
+      <div class="decision-summary">
+        <div class="summary-card allow">
+          <div class="summary-icon">✅</div>
+          <div class="summary-content">
+            <div class="summary-value">1,847</div>
+            <div class="summary-label">Allowed</div>
+            <div class="summary-change">+12% today</div>
+          </div>
+        </div>
+        <div class="summary-card challenge">
+          <div class="summary-icon">⚠️</div>
+          <div class="summary-content">
+            <div class="summary-value">234</div>
+            <div class="summary-label">Challenged</div>
+            <div class="summary-change">-3% today</div>
+          </div>
+        </div>
+        <div class="summary-card block">
+          <div class="summary-icon">🚫</div>
+          <div class="summary-content">
+            <div class="summary-value">89</div>
+            <div class="summary-label">Blocked</div>
+            <div class="summary-change">+8% today</div>
+          </div>
+        </div>
+        <div class="summary-card review">
+          <div class="summary-icon">👁️</div>
+          <div class="summary-content">
+            <div class="summary-value">45</div>
+            <div class="summary-label">Under Review</div>
+            <div class="summary-change">+2 pending</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="decisions-content">
+      <div class="decisions-panel">
+        <div class="panel-header">
+          <h3>🤖 AI Decision Engine</h3>
+          <div class="panel-controls">
+            <button class="mini-btn" id="autoRefreshBtn">🔄 Auto-refresh</button>
+            <button class="mini-btn" id="explainModeBtn">🧠 Explain Mode</button>
+          </div>
+        </div>
+        
+        <div class="decisions-list" id="decisionsList">
+          <div class="decision-item allow">
+            <div class="decision-header">
+              <div class="decision-id">#D2024-001847</div>
+              <div class="decision-time">2 minutes ago</div>
+              <div class="decision-result allow">ALLOW</div>
+            </div>
+            <div class="decision-content">
+              <div class="decision-title">User Authentication Request</div>
+              <div class="decision-details">
+                <div class="detail-item">
+                  <span class="detail-label">User:</span>
+                  <span class="detail-value">john.doe@company.com</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Trust Score:</span>
+                  <span class="detail-value trust-high">0.92</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Confidence:</span>
+                  <span class="detail-value">96%</span>
+                </div>
+              </div>
+              <div class="decision-factors">
+                <div class="factor positive">
+                  <span class="factor-icon">📶</span>
+                  <span class="factor-text">Wi-Fi pattern matches (98%)</span>
+                </div>
+                <div class="factor positive">
+                  <span class="factor-icon">🎵</span>
+                  <span class="factor-text">Audio environment consistent (94%)</span>
+                </div>
+                <div class="factor positive">
+                  <span class="factor-icon">⌚</span>
+                  <span class="factor-text">Smartwatch proximity confirmed (100%)</span>
+                </div>
+              </div>
+              <div class="decision-explanation">
+                <strong>AI Explanation:</strong> High confidence decision based on consistent behavioral patterns. All three authentication factors show strong positive correlation with user's historical profile.
+              </div>
+            </div>
+            <div class="decision-actions">
+              <button class="action-btn feedback" title="Mark as Correct">👍</button>
+              <button class="action-btn feedback" title="Mark as Incorrect">👎</button>
+              <button class="action-btn" title="View Details">🔍</button>
+              <button class="action-btn" title="Export">📋</button>
+            </div>
+          </div>
+
+          <div class="decision-item challenge">
+            <div class="decision-header">
+              <div class="decision-id">#D2024-001846</div>
+              <div class="decision-time">5 minutes ago</div>
+              <div class="decision-result challenge">CHALLENGE</div>
+            </div>
+            <div class="decision-content">
+              <div class="decision-title">Suspicious Activity Pattern</div>
+              <div class="decision-details">
+                <div class="detail-item">
+                  <span class="detail-label">User:</span>
+                  <span class="detail-value">sarah.wilson@company.com</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Trust Score:</span>
+                  <span class="detail-value trust-medium">0.67</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Confidence:</span>
+                  <span class="detail-value">78%</span>
+                </div>
+              </div>
+              <div class="decision-factors">
+                <div class="factor positive">
+                  <span class="factor-icon">📶</span>
+                  <span class="factor-text">Wi-Fi location verified (89%)</span>
+                </div>
+                <div class="factor negative">
+                  <span class="factor-icon">🎵</span>
+                  <span class="factor-text">Unusual audio signature (23%)</span>
+                </div>
+                <div class="factor neutral">
+                  <span class="factor-icon">⌚</span>
+                  <span class="factor-text">Watch data unavailable</span>
+                </div>
+              </div>
+              <div class="decision-explanation">
+                <strong>AI Explanation:</strong> Moderate confidence challenge due to anomalous audio patterns. Recommend additional verification step before granting access.
+              </div>
+            </div>
+            <div class="decision-actions">
+              <button class="action-btn feedback" title="Mark as Correct">👍</button>
+              <button class="action-btn feedback" title="Mark as Incorrect">👎</button>
+              <button class="action-btn" title="View Details">🔍</button>
+              <button class="action-btn" title="Export">📋</button>
+            </div>
+          </div>
+
+          <div class="decision-item block">
+            <div class="decision-header">
+              <div class="decision-id">#D2024-001845</div>
+              <div class="decision-time">8 minutes ago</div>
+              <div class="decision-result block">BLOCK</div>
+            </div>
+            <div class="decision-content">
+              <div class="decision-title">High-Risk Authentication Attempt</div>
+              <div class="decision-details">
+                <div class="detail-item">
+                  <span class="detail-label">User:</span>
+                  <span class="detail-value">unknown.user@external.com</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Trust Score:</span>
+                  <span class="detail-value trust-low">0.23</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Confidence:</span>
+                  <span class="detail-value">99%</span>
+                </div>
+              </div>
+              <div class="decision-factors">
+                <div class="factor negative">
+                  <span class="factor-icon">📶</span>
+                  <span class="factor-text">Unknown Wi-Fi network (5%)</span>
+                </div>
+                <div class="factor negative">
+                  <span class="factor-icon">🎵</span>
+                  <span class="factor-text">Audio spoofing detected (12%)</span>
+                </div>
+                <div class="factor negative">
+                  <span class="factor-icon">⌚</span>
+                  <span class="factor-text">No smartwatch detected (0%)</span>
+                </div>
+              </div>
+              <div class="decision-explanation">
+                <strong>AI Explanation:</strong> High confidence block due to multiple security violations. All authentication factors indicate potential fraud or unauthorized access attempt.
+              </div>
+            </div>
+            <div class="decision-actions">
+              <button class="action-btn feedback" title="Mark as Correct">👍</button>
+              <button class="action-btn feedback" title="Mark as Incorrect">👎</button>
+              <button class="action-btn" title="View Details">🔍</button>
+              <button class="action-btn" title="Export">📋</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-panel">
+        <div class="panel-header">
+          <h3>📈 Decision Analytics</h3>
+        </div>
+        
+        <div class="analytics-content">
+          <div class="chart-container">
+            <h4>Decision Trends (24h)</h4>
+            <canvas id="decisionTrendsChart"></canvas>
+          </div>
+          
+          <div class="chart-container">
+            <h4>Confidence Distribution</h4>
+            <canvas id="confidenceChart"></canvas>
+          </div>
+          
+          <div class="model-performance">
+            <h4>Model Performance</h4>
+            <div class="performance-metrics">
+              <div class="metric-item">
+                <div class="metric-label">Accuracy</div>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: 94%"></div>
+                </div>
+                <div class="metric-value">94.2%</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Precision</div>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: 92%"></div>
+                </div>
+                <div class="metric-value">91.8%</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Recall</div>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: 96%"></div>
+                </div>
+                <div class="metric-value">96.1%</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">F1-Score</div>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: 94%"></div>
+                </div>
+                <div class="metric-value">93.9%</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="feedback-summary">
+            <h4>Human Feedback</h4>
+            <div class="feedback-stats">
+              <div class="feedback-item">
+                <span class="feedback-icon positive">👍</span>
+                <span class="feedback-count">1,247</span>
+                <span class="feedback-label">Correct</span>
+              </div>
+              <div class="feedback-item">
+                <span class="feedback-icon negative">👎</span>
+                <span class="feedback-count">89</span>
+                <span class="feedback-label">Incorrect</span>
+              </div>
+              <div class="feedback-accuracy">
+                <span>Human Agreement: 93.3%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/user/decisions.js"></script>
+</body>
+</html>

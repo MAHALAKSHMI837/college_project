@@ -10,23 +10,29 @@
 <body>
 <div class="container">
   <div class="topbar">
-    <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
-    <div class="controls">
-      <input id="search" class="search" placeholder="Search events…"/>
-      <button id="btnStart" class="btn">Start Stream</button>
-      <button id="btnStop" class="btn ghost">Stop Stream</button>
-      <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
-      <div class="user-info">
-        <span id="userWelcome">Welcome, User</span>
+    <div class="header-top">
+      <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search events…"/>
+        <button id="btnStart" class="btn">Start Stream</button>
+        <button id="btnStop" class="btn ghost">Stop Stream</button>
+        <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+        <div class="user-info">
+          <span id="userWelcome">Welcome, User</span>
+        </div>
       </div>
+    </div>
+    <div class="navigation">
+      <span class="nav-items">
+        <a href="/" class="nav-link active">Dashboard</a> · 
+        <a href="/user/streams.html" class="nav-link">Streams</a> · 
+        <a href="/user/decisions.html" class="nav-link">Decisions</a> · 
+        <a href="/user/settings.html" class="nav-link">Settings</a>
+      </span>
     </div>
   </div>
 
   <aside class="sidebar">
-    <div class="section">
-      <h3>Navigation</h3>
-      <div class="small">Dashboard · Streams · Decisions · Settings</div>
-    </div>
     <div class="section">
       <h3>Sampling</h3>
       <div class="small">Wi‑Fi: <span id="cfgWifiInt">60s</span></div>
@@ -48,13 +54,41 @@
 
   <main class="main">
     <section class="grid cols-3">
-      <div class="card">
-        <h3>Trust Score</h3>
-        <div class="kpi">
-          <span class="dot" style="background:#24d27b;"></span>
-          <div class="big" id="trustScore">0.00</div>
+      <div class="card trust-card">
+        <h3>🛡️ Trust Score</h3>
+        <div class="trust-display">
+          <div class="trust-circle">
+            <svg class="progress-ring" width="120" height="120">
+              <circle class="progress-ring-bg" cx="60" cy="60" r="50"></circle>
+              <circle class="progress-ring-fill" cx="60" cy="60" r="50" id="trustProgress"></circle>
+            </svg>
+            <div class="trust-value">
+              <span class="big" id="trustScore">0.85</span>
+              <span class="trust-label">TRUST</span>
+            </div>
+          </div>
+          <div class="trust-status">
+            <div class="status-indicator" id="trustStatus">🟢 SECURE</div>
+            <div class="confidence-level" id="confidenceLevel">High Confidence</div>
+          </div>
         </div>
-        <div class="small">Real-time authentication confidence</div>
+        <div class="trust-factors">
+          <div class="factor">
+            <span class="factor-icon">📶</span>
+            <span class="factor-name">Wi-Fi</span>
+            <span class="factor-value" id="wifiScore">92%</span>
+          </div>
+          <div class="factor">
+            <span class="factor-icon">🎵</span>
+            <span class="factor-name">Audio</span>
+            <span class="factor-value" id="audioScore">78%</span>
+          </div>
+          <div class="factor">
+            <span class="factor-icon">⌚</span>
+            <span class="factor-name">Watch</span>
+            <span class="factor-value" id="watchScore">95%</span>
+          </div>
+        </div>
         <div class="fixed-chart">
           <canvas id="trustChart"></canvas>
         </div>

@@ -12,11 +12,41 @@ let totalPages = 1;
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
+    setupLogout();
     initializeEventListeners();
     initializeCharts();
     loadDashboardData();
     updateFilterSummary();
 });
+
+// Setup logout functionality
+function setupLogout() {
+    // Display admin username
+    const adminUsername = localStorage.getItem('adminUsername') || 'Admin';
+    document.getElementById('adminUsername').textContent = adminUsername;
+    
+    // Logout button event
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Clear admin session data
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminId');
+            localStorage.removeItem('adminUsername');
+            localStorage.removeItem('isAdmin');
+            
+            // Redirect to admin login
+            window.location.href = '/admin-login.html';
+        }
+    });
+    
+    // Check if user is authenticated
+    const adminToken = localStorage.getItem('adminToken');
+    const isAdmin = localStorage.getItem('isAdmin');
+    
+    if (!adminToken || isAdmin !== 'true') {
+        window.location.href = '/admin-login.html';
+    }
+}
 
 // Event Listeners
 function initializeEventListeners() {
@@ -40,6 +70,12 @@ function initializeEventListeners() {
     document.getElementById('downloadReport').addEventListener('click', downloadReport);
     document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
     document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+    
+    // Security behaviour controls
+    document.getElementById('openSecurityDashboard').addEventListener('click', openSecurityDashboard);
+    document.querySelectorAll('.btn-action').forEach(btn => {
+        btn.addEventListener('click', handleSecurityAction);
+    });
 }
 
 // Handle date range change
@@ -530,7 +566,73 @@ function updateTrustTrendChart(period) {
     charts.trustTrend.update();
 }
 
+// Open Security Dashboard
+function openSecurityDashboard() {
+    // Open the admin-security dashboard in a new tab
+    window.open('/admin-security/', '_blank');
+}
+
+// Handle security actions
+function handleSecurityAction(event) {
+    const action = event.target.classList.contains('terminate') ? 'terminate' : 'challenge';
+    const actionText = action === 'terminate' ? 'terminate all sessions' : 'challenge all users';
+    
+    if (confirm(`Are you sure you want to ${actionText}?`)) {
+        // Simulate API call
+        console.log(`Executing ${action} action...`);
+        
+        // Show success message
+        const originalText = event.target.textContent;
+        event.target.textContent = action === 'terminate' ? 'Terminated!' : 'Challenged!';
+        event.target.style.background = '#24d27b';
+        
+        setTimeout(() => {
+            event.target.textContent = originalText;
+            event.target.style.background = '';
+        }, 2000);
+        
+        // Update session stats
+        if (action === 'terminate') {
+            document.getElementById('activeSessions').textContent = '0';
+            const terminated = parseInt(document.getElementById('terminatedSessions').textContent);
+            document.getElementById('terminatedSessions').textContent = terminated + 12;
+        }
+    }
+}
+
+// Update security behaviour data
+function updateSecurityBehaviour() {
+    // Update active sessions count
+    const activeSessions = Math.floor(Math.random() * 20) + 5;
+    document.getElementById('activeSessions').textContent = activeSessions;
+    
+    // Update threat list with real-time data
+    const threats = [
+        { level: 'high', message: 'Bot detection: IP 203.45.67.89' },
+        { level: 'high', message: 'Multiple failed attempts: User123' },
+        { level: 'medium', message: 'Geo-mismatch: Moscow login' },
+        { level: 'medium', message: 'Unusual device: iPhone-Unknown' },
+        { level: 'low', message: 'Unusual time access' },
+        { level: 'low', message: 'WiFi variance detected' }
+    ];
+    
+    const threatList = document.getElementById('threatList');
+    const randomThreats = threats.sort(() => 0.5 - Math.random()).slice(0, 3);
+    
+    threatList.innerHTML = randomThreats.map(threat => 
+        `<div class="threat-item ${threat.level}">${threat.message}</div>`
+    ).join('');
+}
+
 // Initialize table data on load
 setTimeout(() => {
     loadTableData();
+    updateSecurityBehaviour();
 }, 1000);
+
+// Update security behaviour data periodically
+setInterval(() => {
+    if (liveMode) {
+        updateSecurityBehaviour();
+    }
+}, 15000);

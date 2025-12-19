@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Behaviour Control - F1 Telemetry</title>
+    <link rel="stylesheet" href="admin-security.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="f1-dashboard">
+        <!-- Header -->
+        <header class="f1-header">
+            <div class="header-left">
+                <div class="system-status">
+                    <span class="status-dot active"></span>
+                    <span class="status-text">SECURITY TELEMETRY ACTIVE</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h1>SECURITY BEHAVIOUR CONTROL</h1>
+            </div>
+            <div class="header-right">
+                <div class="timestamp" id="timestamp"></div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Left Panel - Widgets -->
+            <div class="left-panel">
+                <div class="widget-grid">
+                    <div class="widget session-time">
+                        <div class="widget-header">SESSION TIME</div>
+                        <div class="widget-value" id="sessionTime">02:34:12</div>
+                        <div class="widget-bar">
+                            <div class="bar-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget failed-attempts">
+                        <div class="widget-header">FAILED ATTEMPTS</div>
+                        <div class="widget-value" id="failedAttempts">7</div>
+                        <div class="widget-indicator red"></div>
+                    </div>
+                    
+                    <div class="widget device-id">
+                        <div class="widget-header">ACTIVE DEVICE</div>
+                        <div class="widget-value" id="deviceId">EEC-CSE-LAP-29</div>
+                        <div class="widget-indicator blue"></div>
+                    </div>
+                    
+                    <div class="widget risk-spikes">
+                        <div class="widget-header">RISK SPIKES</div>
+                        <div class="widget-value" id="riskSpikes">3</div>
+                        <canvas id="riskSparkline"></canvas>
+                    </div>
+                </div>
+
+                <!-- Heat Map -->
+                <div class="heatmap-container">
+                    <div class="section-title">BEHAVIOUR HEAT MAP</div>
+                    <div class="heatmap" id="heatmap"></div>
+                </div>
+            </div>
+
+            <!-- Center Panel - Radar & Status Cards -->
+            <div class="center-panel">
+                <!-- Radar Ring -->
+                <div class="radar-container">
+                    <div class="radar-ring">
+                        <div class="radar-center">
+                            <div class="trust-score" id="trustScore">0.87</div>
+                            <div class="trust-label">TRUST SCORE</div>
+                        </div>
+                        <div class="radar-sweep"></div>
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Status Cards -->
+                <div class="status-cards">
+                    <div class="status-card allow">
+                        <div class="card-glow"></div>
+                        <div class="card-header">
+                            <span class="card-title">ALLOW</span>
+                            <span class="card-indicator green"></span>
+                        </div>
+                        <div class="card-content">
+                            <div class="latest-decision">
+                                <span class="decision-time" id="allowTime">14:23:45</span>
+                                <span class="decision-trust">Trust: 0.92</span>
+                            </div>
+                            <div class="decision-count" id="allowCount">1,247</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card challenge">
+                        <div class="card-glow"></div>
+                        <div class="card-header">
+                            <span class="card-title">CHALLENGE</span>
+                            <span class="card-indicator amber"></span>
+                        </div>
+                        <div class="card-content">
+                            <div class="latest-decision">
+                                <span class="decision-time" id="challengeTime">14:21:12</span>
+                                <span class="decision-trust">Trust: 0.67</span>
+                            </div>
+                            <div class="decision-count" id="challengeCount">156</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card block">
+                        <div class="card-glow"></div>
+                        <div class="card-header">
+                            <span class="card-title">BLOCK</span>
+                            <span class="card-indicator red"></span>
+                        </div>
+                        <div class="card-content">
+                            <div class="latest-decision">
+                                <span class="decision-time" id="blockTime">14:18:33</span>
+                                <span class="decision-trust">Trust: 0.23</span>
+                            </div>
+                            <div class="decision-count" id="blockCount">43</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Charts -->
+            <div class="right-panel">
+                <!-- Timeline Graph -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <span class="chart-title">DECISION TIMELINE</span>
+                        <div class="chart-legend">
+                            <span class="legend-item allow">ALLOW</span>
+                            <span class="legend-item challenge">CHALLENGE</span>
+                            <span class="legend-item block">BLOCK</span>
+                        </div>
+                    </div>
+                    <canvas id="timelineChart"></canvas>
+                </div>
+
+                <!-- Trust Trend -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <span class="chart-title">TRUST DELTA</span>
+                        <span class="chart-subtitle">Lap-style performance</span>
+                    </div>
+                    <canvas id="trustTrendChart"></canvas>
+                </div>
+
+                <!-- Telemetry Bars -->
+                <div class="telemetry-bars">
+                    <div class="telemetry-bar">
+                        <span class="bar-label">WIFI STRENGTH</span>
+                        <div class="bar-track">
+                            <div class="bar-fill blue" style="width: 78%"></div>
+                        </div>
+                        <span class="bar-value">78%</span>
+                    </div>
+                    <div class="telemetry-bar">
+                        <span class="bar-label">AUDIO ENTROPY</span>
+                        <div class="bar-track">
+                            <div class="bar-fill cyan" style="width: 65%"></div>
+                        </div>
+                        <span class="bar-value">65%</span>
+                    </div>
+                    <div class="telemetry-bar">
+                        <span class="bar-label">DEVICE PROXIMITY</span>
+                        <div class="bar-track">
+                            <div class="bar-fill green" style="width: 92%"></div>
+                        </div>
+                        <span class="bar-value">92%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-security.js"></script>
+</body>
+</html>

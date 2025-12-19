@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/user/user.css">
+  <link rel="stylesheet" href="/user/streams.css">
+  <title>Live Streams - Continuous 2FA</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="header-top">
+      <div class="logo"><span class="dot"></span> Continuous 2FA <span class="badge">Wi‑Fi + Audio + Watch</span></div>
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search events…"/>
+        <button id="btnStart" class="btn">Start Stream</button>
+        <button id="btnStop" class="btn ghost">Stop Stream</button>
+        <button id="btnLogout" class="btn ghost" style="margin-left: 10px;">Logout</button>
+        <div class="user-info">
+          <span id="userWelcome">Welcome, User</span>
+        </div>
+      </div>
+    </div>
+    <div class="navigation">
+      <span class="nav-items">
+        <a href="/" class="nav-link">Dashboard</a> · 
+        <a href="/user/streams.html" class="nav-link active">Streams</a> · 
+        <a href="/user/decisions.html" class="nav-link">Decisions</a> · 
+        <a href="/user/settings.html" class="nav-link">Settings</a>
+      </span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Stream Controls</h3>
+      <div class="stream-controls">
+        <button class="control-btn active" id="pauseBtn">⏸ Pause</button>
+        <button class="control-btn" id="clearBtn">🗑 Clear</button>
+        <button class="control-btn" id="exportBtn">📤 Export</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Filters</h3>
+      <div class="filter-group">
+        <label class="filter-item">
+          <input type="checkbox" checked> Authentication
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Wi-Fi Events
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Audio Events
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> Watch Events
+        </label>
+        <label class="filter-item">
+          <input type="checkbox" checked> System Alerts
+        </label>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Connection Status</h3>
+      <div class="connection-status">
+        <div class="status-item">
+          <span class="status-dot connected"></span>
+          <span>WebSocket: Connected</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot connected"></span>
+          <span>Data Feed: Active</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot warning"></span>
+          <span>AI Engine: Degraded</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="breadcrumb">
+      <a href="/">Dashboard</a> > <span>Live Streams</span>
+    </div>
+
+    <section class="stream-header">
+      <div class="stream-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="eventCount">1,247</div>
+          <div class="stat-label">Events Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="eventsPerMin">23</div>
+          <div class="stat-label">Events/Min</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="alertCount">5</div>
+          <div class="stat-label">Active Alerts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="uptime">99.8%</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stream-content">
+      <div class="stream-panel">
+        <div class="panel-header">
+          <h3>🔴 Live Event Stream</h3>
+          <div class="panel-controls">
+            <button class="mini-btn" id="autoScrollBtn">📜 Auto-scroll</button>
+            <button class="mini-btn" id="fullscreenBtn">⛶ Fullscreen</button>
+          </div>
+        </div>
+        
+        <div class="stream-container" id="streamContainer">
+          <div class="stream-event info">
+            <div class="event-time">14:23:45</div>
+            <div class="event-type">AUTH</div>
+            <div class="event-content">
+              <div class="event-title">User authentication successful</div>
+              <div class="event-details">Trust Score: 0.87 • Wi-Fi: Stable • Audio: Normal</div>
+            </div>
+            <div class="event-actions">
+              <button class="action-btn">📋</button>
+              <button class="action-btn">🔍</button>
+            </div>
+          </div>
+
+          <div class="stream-event warning">
+            <div class="event-time">14:23:42</div>
+            <div class="event-type">WIFI</div>
+            <div class="event-content">
+              <div class="event-title">Wi-Fi signal fluctuation detected</div>
+              <div class="event-details">RSSI dropped from -45dBm to -62dBm • AP: Office_5G</div>
+            </div>
+            <div class="event-actions">
+              <button class="action-btn">📋</button>
+              <button class="action-btn">🔍</button>
+            </div>
+          </div>
+
+          <div class="stream-event error">
+            <div class="event-time">14:23:38</div>
+            <div class="event-type">ALERT</div>
+            <div class="event-content">
+              <div class="event-title">Anomalous behavior pattern detected</div>
+              <div class="event-details">Audio entropy spike: 0.92 • Confidence: 78% • Action: Challenge</div>
+            </div>
+            <div class="event-actions">
+              <button class="action-btn">📋</button>
+              <button class="action-btn">🔍</button>
+            </div>
+          </div>
+
+          <div class="stream-event success">
+            <div class="event-time">14:23:35</div>
+            <div class="event-type">WATCH</div>
+            <div class="event-content">
+              <div class="event-title">Smartwatch proximity confirmed</div>
+              <div class="event-details">Distance: 0.8m • Battery: 67% • Connection: Stable</div>
+            </div>
+            <div class="event-actions">
+              <button class="action-btn">📋</button>
+              <button class="action-btn">🔍</button>
+            </div>
+          </div>
+
+          <div class="stream-event info">
+            <div class="event-time">14:23:30</div>
+            <div class="event-type">SYSTEM</div>
+            <div class="event-content">
+              <div class="event-title">Model inference completed</div>
+              <div class="event-details">Processing time: 23ms • Features: 47 • Model: v2.1.3</div>
+            </div>
+            <div class="event-actions">
+              <button class="action-btn">📋</button>
+              <button class="action-btn">🔍</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-panel">
+        <div class="panel-header">
+          <h3>📊 Real-Time Analytics</h3>
+        </div>
+        
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>Event Rate</h4>
+            <div class="mini-chart">
+              <canvas id="eventRateChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>Trust Distribution</h4>
+            <div class="mini-chart">
+              <canvas id="trustDistChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>Event Types</h4>
+            <div class="event-breakdown">
+              <div class="breakdown-item">
+                <span class="breakdown-dot auth"></span>
+                <span>Authentication: 45%</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-dot wifi"></span>
+                <span>Wi-Fi: 28%</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-dot audio"></span>
+                <span>Audio: 18%</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-dot watch"></span>
+                <span>Watch: 9%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>System Health</h4>
+            <div class="health-metrics">
+              <div class="health-item">
+                <span>CPU Usage</span>
+                <div class="health-bar">
+                  <div class="health-fill" style="width: 34%"></div>
+                </div>
+                <span>34%</span>
+              </div>
+              <div class="health-item">
+                <span>Memory</span>
+                <div class="health-bar">
+                  <div class="health-fill" style="width: 67%"></div>
+                </div>
+                <span>67%</span>
+              </div>
+              <div class="health-item">
+                <span>Network</span>
+                <div class="health-bar">
+                  <div class="health-fill" style="width: 23%"></div>
+                </div>
+                <span>23%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/user/streams.js"></script>
+</body>
+</html>

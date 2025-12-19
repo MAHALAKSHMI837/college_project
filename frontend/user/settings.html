@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/user/settings.css">
+  <title>Settings - Continuous 2FA</title>
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Settings</h2>
+      <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    <nav class="nav-menu">
+      <a href="#profile" class="nav-item active">User Profile</a>
+      <a href="#notifications" class="nav-item">Notifications</a>
+      <a href="#security" class="nav-item">Security</a>
+      <a href="#integrations" class="nav-item">API & Integrations</a>
+      <a href="#preferences" class="nav-item">System Preferences</a>
+      <a href="#account" class="nav-item">Account Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="breadcrumb">
+      <a href="/">Dashboard</a> > <span class="current-section">User Profile</span>
+    </div>
+    
+    <div class="content-header">
+      <h1 id="sectionTitle">User Profile</h1>
+    </div>
+
+    <div id="content-area">
+      <!-- Profile Section -->
+      <div class="content-section" id="profile-content">
+        <div class="settings-section">
+          <h3>Profile Information</h3>
+          <div class="profile-grid">
+            <div class="profile-item">
+              <label>Username</label>
+              <input type="text" class="setting-input" value="sample_user" id="username">
+            </div>
+            <div class="profile-item">
+              <label>Email</label>
+              <input type="email" class="setting-input" value="user@example.com" id="email">
+            </div>
+            <div class="profile-item">
+              <label>Role</label>
+              <select class="setting-select" id="role">
+                <option selected>User</option>
+                <option>Admin</option>
+                <option>Moderator</option>
+              </select>
+            </div>
+            <div class="profile-item">
+              <label>Bio</label>
+              <textarea class="setting-textarea" placeholder="Tell us about yourself..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>UI Preferences</h3>
+          <div class="toggle-setting">
+            <div class="toggle-info">
+              <h4>Dark Mode</h4>
+              <p>Switch between light and dark themes</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="darkMode" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>Layout Density</label>
+            <select class="setting-select" id="layoutDensity">
+              <option>Compact</option>
+              <option selected>Comfortable</option>
+              <option>Spacious</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Font Size</label>
+            <input type="range" class="setting-range" min="12" max="18" value="14" id="fontSize">
+            <span class="range-value">14px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Section -->
+      <div class="content-section" id="notifications-content" style="display: none;">
+        <div class="settings-section">
+          <h3>Alert Preferences</h3>
+          <div class="notification-grid">
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Email Alerts</h4>
+                <p>Receive notifications via email</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Push Notifications</h4>
+                <p>Browser push notifications</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Live Stream Alerts</h4>
+                <p>Real-time monitoring alerts</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Decision Engine Alerts</h4>
+                <p>AI decision notifications</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Notification Frequency</h3>
+          <div class="setting-item">
+            <label>Alert Frequency</label>
+            <select class="setting-select">
+              <option selected>Instant</option>
+              <option>Hourly</option>
+              <option>Daily</option>
+              <option>Weekly</option>
+            </select>
+          </div>
+          <button class="test-btn">🔔 Test Notification</button>
+        </div>
+      </div>
+
+      <!-- Security Section -->
+      <div class="content-section" id="security-content" style="display: none;">
+        <div class="settings-section">
+          <h3>Account Security</h3>
+          <div class="security-grid">
+            <div class="security-item">
+              <h4>Change Password</h4>
+              <input type="password" class="setting-input" placeholder="Current password">
+              <input type="password" class="setting-input" placeholder="New password">
+              <button class="save-btn">Update Password</button>
+            </div>
+            <div class="security-item">
+              <h4>Two-Factor Authentication</h4>
+              <div class="toggle-setting">
+                <span>Enable 2FA</span>
+                <label class="toggle-switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Active Sessions</h3>
+          <div class="session-list">
+            <div class="session-item">
+              <div class="session-info">
+                <strong>Current Session</strong>
+                <p>Chrome on Windows • 192.168.1.100</p>
+                <small>Last active: Now</small>
+              </div>
+              <span class="session-badge current">Current</span>
+            </div>
+            <div class="session-item">
+              <div class="session-info">
+                <strong>Mobile Session</strong>
+                <p>Safari on iPhone • 192.168.1.101</p>
+                <small>Last active: 2 hours ago</small>
+              </div>
+              <button class="revoke-btn">Revoke</button>
+            </div>
+          </div>
+          <button class="danger-btn">Logout All Devices</button>
+        </div>
+      </div>
+
+      <!-- Integrations Section -->
+      <div class="content-section" id="integrations-content" style="display: none;">
+        <div class="settings-section">
+          <h3>API Keys</h3>
+          <div class="api-key-item">
+            <label>API Key</label>
+            <div class="api-key-display">
+              <input type="text" class="setting-input" value="sk-••••••••••••••••••••••••••••••••" readonly>
+              <button class="copy-btn">📋 Copy</button>
+              <button class="regenerate-btn">🔄 Regenerate</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Integrations</h3>
+          <div class="integration-list">
+            <div class="integration-item">
+              <div class="integration-info">
+                <strong>Slack</strong>
+                <p>Send alerts to Slack channels</p>
+              </div>
+              <button class="connect-btn">Connect</button>
+            </div>
+            <div class="integration-item">
+              <div class="integration-info">
+                <strong>Discord</strong>
+                <p>Discord webhook notifications</p>
+              </div>
+              <button class="connect-btn connected">Connected</button>
+            </div>
+            <div class="integration-item">
+              <div class="integration-info">
+                <strong>Webhooks</strong>
+                <p>Custom webhook endpoints</p>
+              </div>
+              <button class="connect-btn">Configure</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences Section -->
+      <div class="content-section" id="preferences-content" style="display: none;">
+        <div class="settings-section">
+          <h3>System Preferences</h3>
+          <div class="toggle-setting">
+            <div class="toggle-info">
+              <h4>Enable Live Streams</h4>
+              <p>Allow real-time data streaming</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label>Data Refresh Interval</label>
+            <input type="range" class="setting-range" min="5" max="60" value="30" id="refreshInterval">
+            <span class="range-value">30s</span>
+          </div>
+          
+          <div class="setting-item">
+            <label>Default Landing Page</label>
+            <select class="setting-select">
+              <option selected>Dashboard</option>
+              <option>Streams</option>
+              <option>Decisions</option>
+              <option>Settings</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label>Language</label>
+            <select class="setting-select">
+              <option selected>English</option>
+              <option>Spanish</option>
+              <option>French</option>
+              <option>German</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label>Timezone</label>
+            <select class="setting-select">
+              <option selected>UTC</option>
+              <option>EST</option>
+              <option>PST</option>
+              <option>GMT</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Section -->
+      <div class="content-section" id="account-content" style="display: none;">
+        <div class="settings-section">
+          <h3>Account Management</h3>
+          <div class="account-actions">
+            <button class="save-btn">💾 Save All Settings</button>
+            <button class="export-btn">📤 Export Settings</button>
+            <button class="import-btn">📥 Import Settings</button>
+          </div>
+        </div>
+        
+        <div class="settings-section danger-zone">
+          <h3>Danger Zone</h3>
+          <div class="danger-actions">
+            <button class="danger-btn">🗑️ Delete Account</button>
+            <button class="danger-btn">🔄 Reset All Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/user/settings.js"></script>
+</body>
+</html>

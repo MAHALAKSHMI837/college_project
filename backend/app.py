@@ -12,6 +12,22 @@ sys.path.insert(0, current_dir)
 app = Flask(__name__)
 CORS(app)
 
+# Import and register all route blueprints
+try:
+    from routes.device_routes import device_bp
+    from routes.session_routes import session_bp
+    from routes.security_routes import security_bp
+    from routes.audit_routes import audit_bp
+    
+    app.register_blueprint(device_bp, url_prefix='/api/device')
+    app.register_blueprint(session_bp, url_prefix='/api/session')
+    app.register_blueprint(security_bp, url_prefix='/api/security')
+    app.register_blueprint(audit_bp, url_prefix='/api/audit')
+    
+    print("All enterprise routes loaded successfully")
+except ImportError as e:
+    print(f"Warning: Could not load some routes: {e}")
+
 print("Starting Continuous 2FA Authentication System...")
 
 # Health check endpoint
@@ -24,6 +40,73 @@ def health_check():
         'timestamp': datetime.now(timezone.utc).isoformat(),
         "version": "2.0.0"
     })
+
+# Import WiFi scanner
+try:
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'services', 'utils'))
+    from wifi_scanner import get_wifi_scanner
+    
+    # Initialize real WiFi scanner
+    wifi_scanner = get_wifi_scanner(use_simulation=False)  # Set to True for simulation
+    wifi_scanner.start_continuous_scan() if hasattr(wifi_scanner, 'start_continuous_scan') else None
+    print("📡 WiFi scanner initialized")
+except Exception as e:
+    print(f"WiFi scanner error: {e}")
+    wifi_scanner = None
+
+# API Routes for Streams and Decisions
+@app.route("/api/streams/events", methods=["GET"])
+def get_stream_events():
+    """Get recent stream events"""
+    events = [
+        {"time": "14:23:45", "type": "AUTH", "title": "User authentication successful", "details": "Trust Score: 0.87 • Wi-Fi: Stable • Audio: Normal", "level": "info"},
+        {"time": "14:23:42", "type": "WIFI", "title": "Wi-Fi signal fluctuation detected", "details": "RSSI dropped from -45dBm to -62dBm • AP: Office_5G", "level": "warning"},
+        {"time": "14:23:38", "type": "ALERT", "title": "Anomalous behavior pattern detected", "details": "Audio entropy spike: 0.92 • Confidence: 78% • Action: Challenge", "level": "error"}
+    ]
+    return jsonify({"success": True, "data": events})
+
+@app.route("/api/decisions/recent", methods=["GET"])
+def get_recent_decisions():
+    """Get recent AI decisions"""
+    decisions = [
+        {"id": "D2024-001847", "result": "ALLOW", "trust_score": 0.92, "confidence": 96, "user": "john.doe@company.com", "time": "2 minutes ago"},
+        {"id": "D2024-001846", "result": "CHALLENGE", "trust_score": 0.67, "confidence": 78, "user": "sarah.wilson@company.com", "time": "5 minutes ago"},
+        {"id": "D2024-001845", "result": "BLOCK", "trust_score": 0.23, "confidence": 99, "user": "unknown.user@external.com", "time": "8 minutes ago"}
+    ]
+    return jsonify({"success": True, "data": decisions})
+
+@app.route("/api/decisions/feedback", methods=["POST"])
+def submit_decision_feedback():
+    """Submit feedback for AI decisions"""
+    data = request.get_json() or {}
+    decision_id = data.get('decision_id')
+    feedback = data.get('feedback')  # 'correct' or 'incorrect'
+    return jsonify({"success": True, "message": f"Feedback recorded for {decision_id}"})
+
+@app.route("/api/wifi/scan", methods=["GET"])
+def get_wifi_scan():
+    """Get current WiFi scan results"""
+    if wifi_scanner:
+        try:
+            networks = wifi_scanner.scan()
+            stability = wifi_scanner.calculate_stability_score() if hasattr(wifi_scanner, 'calculate_stability_score') else 0.8
+            fingerprint = wifi_scanner.get_network_fingerprint() if hasattr(wifi_scanner, 'get_network_fingerprint') else "unknown"
+            
+            return jsonify({
+                "success": True,
+                "data": {
+                    "networks": networks,
+                    "stability_score": stability,
+                    "fingerprint": fingerprint,
+                    "scan_time": datetime.now().isoformat()
+                }
+            })
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+    else:
+        return jsonify({"success": False, "error": "WiFi scanner not available"}), 503
 
 # Simple user login route
 @app.route("/api/auth/login", methods=["POST"])
@@ -163,6 +246,22 @@ def serve_admin_dashboard():
 def serve_trading_dashboard():
     return send_from_directory(os.path.join(FRONTEND_DIR, "admin"), "trading-dashboard.html")
 
+@app.route("/user/settings.html")
+def serve_user_settings():
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "settings.html")
+
+@app.route("/user/streams.html")
+def serve_user_streams():
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "streams.html")
+
+@app.route("/user/decisions.html")
+def serve_user_decisions():
+    return send_from_directory(os.path.join(FRONTEND_DIR, "user"), "decisions.html")
+
+@app.route("/admin-security/")
+def serve_admin_security():
+    return send_from_directory(os.path.join(FRONTEND_DIR, "admin-security"), "index.html")
+
 @app.route("/<path:filename>")
 def serve_static(filename):
     # Try different directories
@@ -205,6 +304,14 @@ if __name__ == "__main__":
     print("   Health Check:    http://127.0.0.1:5000/api/health")
     print("   User Login:      http://127.0.0.1:5000/api/auth/login")
     print("   Admin Login:     http://127.0.0.1:5000/api/auth/admin-login")
+    
+    print("\nENTERPRISE FEATURES:")
+    print("   Device Management:   /api/device/*")
+    print("   Session Control:     /api/session/*")
+    print("   Security Policies:   /api/security/*")
+    print("   Audit & Reports:     /api/audit/*")
+    print("   Threat Intelligence: /api/security/threat-check")
+    print("   Anomaly Detection:   /api/security/anomaly/detect")
     
     print("\n" + "="*60)
     print("Server starting on http://127.0.0.1:5000")
